@@ -2,7 +2,7 @@
 
 > A premium SaaS command center for video creators. Manage ideas, scripts, sponsors, and analytics in one beautiful workspace.
 
-**Live Demo:** https://clipflow-demo.vercel.app
+**Live Demo:** https://clipflow-sepia.vercel.app
 
 ## Features
 
