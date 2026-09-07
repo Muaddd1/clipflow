@@ -47,41 +47,39 @@ function ContentRow({ content, onDelete }: { content: Content; onDelete: (id: st
     <>
       <Link
         href={`/content/${content.id}`}
-        className="grid grid-cols-[1fr_auto_auto_auto_auto] items-center gap-4 py-4 border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors px-4 -mx-4"
+        className="grid grid-cols-1 sm:grid-cols-[1fr_auto_auto] lg:grid-cols-[1fr_auto_auto_auto_auto] items-start sm:items-center gap-2 sm:gap-4 py-4 border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors px-4 -mx-4"
       >
         {/* Info */}
         <div className="flex items-center gap-3 min-w-0">
           {content.thumbnail && (
-            <img src={content.thumbnail} alt="" className="w-14 h-9 rounded-lg object-cover flex-shrink-0" />
+            <img src={content.thumbnail} alt="" className="w-14 h-9 rounded-lg object-cover flex-shrink-0 hidden sm:block" />
           )}
           {!content.thumbnail && (
-            <div className="w-14 h-9 rounded-lg bg-white/[0.04] flex items-center justify-center flex-shrink-0">
+            <div className="w-14 h-9 rounded-lg bg-white/[0.04] flex items-center justify-center flex-shrink-0 hidden sm:block">
               <FileVideo size={14} className="text-white/20" />
             </div>
           )}
-          <div className="min-w-0">
-            <p className="text-sm font-medium text-white/90 truncate">{content.title}</p>
-            <p className="text-xs text-white/30 mt-0.5">
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2 mb-1">
+              <p className="text-sm font-medium text-white/90 truncate">{content.title}</p>
+              <Badge variant="platform" platform={content.platform} />
+              <Badge variant="status" status={content.status} />
+            </div>
+            <p className="text-xs text-white/30">
               {content.status === 'published' && content.publishedAt ? formatDate(content.publishedAt) : content.scheduledAt ? `Scheduled ${formatDate(content.scheduledAt)}` : formatDate(content.createdAt)}
             </p>
           </div>
         </div>
 
-        {/* Platform */}
-        <Badge variant="platform" platform={content.platform} />
-
-        {/* Status */}
-        <Badge variant="status" status={content.status} />
-
-        {/* Stats */}
-        <div className="flex items-center gap-4 text-xs text-white/30">
+        {/* Stats - hidden on mobile */}
+        <div className="hidden sm:flex items-center gap-4 text-xs text-white/30">
           <span className="flex items-center gap-1"><Eye size={12} />{formatNumber(content.views)}</span>
           <span className="flex items-center gap-1"><ThumbsUp size={12} />{formatNumber(content.likes)}</span>
-          <span className="hidden sm:flex items-center gap-1"><MessageCircle size={12} />{formatNumber(content.comments)}</span>
+          <span className="hidden lg:flex items-center gap-1"><MessageCircle size={12} />{formatNumber(content.comments)}</span>
         </div>
 
-        {/* Engagement */}
-        <div className="text-right">
+        {/* Engagement - hidden on mobile */}
+        <div className="hidden sm:block text-right">
           <p className="text-sm font-mono text-white/60">{content.engagementRate > 0 ? `${content.engagementRate}%` : '—'}</p>
         </div>
       </Link>
