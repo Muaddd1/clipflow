@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server'
 
+// Replicate generations typically take 20-40s; the poll loop below budgets
+// for up to 60s, so the function needs a matching max duration or it gets
+// killed by the platform's 10s default long before Replicate finishes.
+export const maxDuration = 60
+
 export async function POST(request: Request) {
   try {
     const { apiKey, prompt, aspectRatio, test } = await request.json()
