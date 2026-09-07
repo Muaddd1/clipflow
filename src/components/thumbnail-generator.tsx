@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Image, Sparkles, RefreshCw, Check, X, ChevronRight, Loader2, Wand2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Select } from '@/components/ui/select'
 import { Dialog, DialogHeader, DialogTitle, DialogBody, DialogFooter } from '@/components/ui/dialog'
