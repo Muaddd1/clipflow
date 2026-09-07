@@ -1,7 +1,6 @@
 'use client'
 
-import { useState } from 'react'
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useData } from '@/lib/data-context'
 import { Button } from '@/components/ui/button'
