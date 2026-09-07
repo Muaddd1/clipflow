@@ -10,14 +10,16 @@ import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogHeader, DialogTitle, DialogBody, DialogFooter } from '@/components/ui/dialog'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
-import { PenTool, Plus, Trash2, Save, Clock, ArrowLeft } from 'lucide-react'
+import { PenTool, Plus, Trash2, Save, Clock, ArrowLeft, Sparkles } from 'lucide-react'
 import { formatDate, formatRelativeDate } from '@/lib/utils'
 import { toast } from 'sonner'
 import Link from 'next/link'
+import { AiScriptGenerator } from '@/components/ai-script-generator'
 
 export default function ScriptsPage() {
   const { data, addScript, updateScript, deleteScript } = useData()
   const [newOpen, setNewOpen] = useState(false)
+  const [aiOpen, setAiOpen] = useState(false)
   const [editorId, setEditorId] = useState<string | null>(null)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -140,6 +142,7 @@ export default function ScriptsPage() {
           <h1 className="text-2xl font-bold text-white">Script Studio</h1>
           <p className="text-white/40 text-sm mt-0.5">{data.scripts.length} scripts</p>
         </div>
+        <Button variant="secondary" onClick={() => setAiOpen(true)}><Sparkles size={14} />AI Generate</Button>
         <Button variant="primary" onClick={() => setNewOpen(true)}><Plus size={14} />New Script</Button>
       </div>
 
@@ -181,6 +184,15 @@ export default function ScriptsPage() {
       </Dialog>
 
       <ConfirmDialog open={!!deleteId} onOpenChange={v => !v && setDeleteId(null)} title="Delete script?" description="This will permanently delete this script." confirmLabel="Delete" destructive onConfirm={handleDelete} />
+
+      <AiScriptGenerator
+        open={aiOpen}
+        onOpenChange={setAiOpen}
+        onSave={(scriptData) => {
+          addScript(scriptData)
+          setAiOpen(false)
+        }}
+      />
     </div>
   )
 }

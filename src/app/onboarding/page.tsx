@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { useData } from '@/lib/data-context'
 import { toast } from 'sonner'
+import { cn } from '@/lib/utils'
 
 const platforms = [
   { value: 'youtube', label: 'YouTube' },
@@ -246,8 +247,4 @@ export default function OnboardingPage() {
       </div>
     </div>
   )
-}
-
-function cn(...classes: (string | boolean | undefined)[]) {
-  return classes.filter(Boolean).join(' ')
 }

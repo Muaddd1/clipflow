@@ -1,11 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useData } from '@/lib/data-context'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { BarChart } from '@/components/ui/chart'
-import { Eye, ThumbsUp, MessageCircle, Users, DollarSign, TrendingUp, Clock } from 'lucide-react'
+import { Eye, TrendingUp, Users, DollarSign } from 'lucide-react'
 import { formatNumber } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 
@@ -43,8 +41,12 @@ function generateAnalytics() {
 export default function AnalyticsPage() {
   const { data } = useData()
   const [period, setPeriod] = useState('30')
+  const [analytics, setAnalytics] = useState<ReturnType<typeof generateAnalytics>>([])
 
-  const analytics = generateAnalytics()
+  useEffect(() => {
+    setAnalytics(generateAnalytics())
+  }, [])
+
   const filtered = period === 'all' ? analytics : analytics.slice(-parseInt(period))
 
   const totalViews = filtered.reduce((s, d) => s + d.newViews, 0)
@@ -54,7 +56,7 @@ export default function AnalyticsPage() {
   const followerGrowth = filtered.length > 1 ? filtered[filtered.length - 1].followers - filtered[0].followers : 0
   const totalRevenue = data.content.reduce((s, c) => s + (c.revenue || 0), 0)
 
-  const maxViews = Math.max(...filtered.map(d => d.newViews))
+  const maxViews = filtered.length > 0 ? Math.max(...filtered.map(d => d.newViews)) : 1
 
   // Platform breakdown
   const platformCounts: Record<string, number> = {}

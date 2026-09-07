@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useData } from '@/lib/data-context'
 import { MetricCard, AreaChart } from '@/components/ui/chart'
 import { Badge } from '@/components/ui/badge'
@@ -63,7 +63,11 @@ export default function DashboardPage() {
   }
 
   const [perfDays, setPerfDays] = useState(30)
-  const perfData = generatePerfData(perfDays)
+  const [perfData, setPerfData] = useState<number[]>([])
+
+  useEffect(() => {
+    setPerfData(generatePerfData(perfDays))
+  }, [perfDays])
 
   // Today's focus
   const todayTasks = [
@@ -157,7 +161,7 @@ export default function DashboardPage() {
                 { key: 'editing', label: 'Edit' },
                 { key: 'scheduled', label: 'Scheduled' },
                 { key: 'published', label: 'Live' },
-              ].map((stage, i) => (
+              ].map((stage) => (
                 <div key={stage.key} className="flex-1 text-center">
                   <div className="flex flex-col items-center gap-1.5">
                     <div className={cn(
@@ -170,7 +174,6 @@ export default function DashboardPage() {
                     </div>
                     <span className="text-[10px] text-white/25 font-mono">{stage.label}</span>
                   </div>
-                  {i < 6 && <div className="hidden sm:block absolute right-0 top-1/2" />}
                 </div>
               ))}
             </div>

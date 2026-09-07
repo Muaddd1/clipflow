@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
-import { Settings, User, Sliders, Palette, Bell, Database, ChevronRight, Check } from 'lucide-react'
+import { Settings, User, Sliders, Palette, Bell, Database, ChevronRight, Check, Sparkles, Eye, EyeOff } from 'lucide-react'
+import { testAIConnection } from '@/lib/ai'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import type { Platform, AppSettings } from '@/lib/types'
@@ -36,6 +37,7 @@ const tabs = [
   { id: 'profile', label: 'Profile', icon: User },
   { id: 'preferences', label: 'Creator', icon: Sliders },
   { id: 'appearance', label: 'Appearance', icon: Palette },
+  { id: 'ai', label: 'AI', icon: Sparkles },
   { id: 'notifications', label: 'Notifications', icon: Bell },
   { id: 'data', label: 'Data', icon: Database },
 ]
@@ -65,6 +67,48 @@ export default function SettingsPage() {
     inApp: settings.notifications.inApp,
     weeklyDigest: settings.notifications.weeklyDigest,
   })
+
+  const [aiApiKey, setAiApiKey] = useState('')
+  const [aiModel, setAiModel] = useState('gpt-4o')
+  const [aiDefaultTone, setAiDefaultTone] = useState('Casual')
+  const [showApiKey, setShowApiKey] = useState(false)
+  const [testingKey, setTestingKey] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setAiApiKey(localStorage.getItem('clipflow-openai-key') || '')
+      setAiModel(localStorage.getItem('clipflow-ai-model') || 'gpt-4o')
+      setAiDefaultTone(localStorage.getItem('clipflow-ai-tone') || 'Casual')
+    }
+  }, [])
+
+  const handleSaveApiKey = () => {
+    if (typeof window !== 'undefined') {
+      if (aiApiKey.trim()) {
+        localStorage.setItem('clipflow-openai-key', aiApiKey.trim())
+      } else {
+        localStorage.removeItem('clipflow-openai-key')
+      }
+      localStorage.setItem('clipflow-ai-model', aiModel)
+      localStorage.setItem('clipflow-ai-tone', aiDefaultTone)
+    }
+    toast.success('AI settings saved')
+  }
+
+  const handleTestConnection = async () => {
+    setTestingKey(true)
+    try {
+      // Temporarily save key for test
+      if (aiApiKey.trim()) localStorage.setItem('clipflow-openai-key', aiApiKey.trim())
+      const ok = await testAIConnection()
+      if (ok) toast.success('Connection successful!')
+      else toast.error('Connection failed. Check your API key.')
+    } catch {
+      toast.error('Connection failed. Check your API key.')
+    } finally {
+      setTestingKey(false)
+    }
+  }
 
   useEffect(() => {
     setProfile({ name: settings.profile.name, handle: settings.profile.handle, bio: settings.profile.bio, avatar: settings.profile.avatar })
@@ -254,6 +298,73 @@ export default function SettingsPage() {
                     <p className="text-xs text-white/30">ClipFlow signature color</p>
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* AI */}
+          {tab === 'ai' && (
+            <div className="space-y-5">
+              <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 space-y-4">
+                <div>
+                  <label className="text-xs font-mono text-white/40 uppercase tracking-wider mb-1.5 block">OpenAI API Key</label>
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <input
+                        type={showApiKey ? 'text' : 'password'}
+                        value={aiApiKey}
+                        onChange={e => setAiApiKey(e.target.value)}
+                        placeholder="sk-..."
+                        className="w-full bg-white/[0.03] border border-white/[0.07] rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-violet/50 pr-10"
+                      />
+                      <button onClick={() => setShowApiKey(!showApiKey)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60">
+                        {showApiKey ? <EyeOff size={14} /> : <Eye size={14} />}
+                      </button>
+                    </div>
+                    <Button variant="secondary" size="sm" onClick={handleTestConnection} disabled={testingKey || !aiApiKey.trim()}>
+                      {testingKey ? 'Testing...' : 'Test'}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-white/20 mt-1.5">Your key is stored locally and never sent to our servers.</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <Select
+                    label="AI Model"
+                    value={aiModel}
+                    onValueChange={setAiModel}
+                    options={[
+                      { value: 'gpt-4o', label: 'GPT-4o (Best quality)' },
+                      { value: 'gpt-4o-mini', label: 'GPT-4o Mini (Faster)' },
+                    ]}
+                    id="ai-model"
+                  />
+                  <Select
+                    label="Default Tone"
+                    value={aiDefaultTone}
+                    onValueChange={setAiDefaultTone}
+                    options={[
+                      { value: 'Professional', label: 'Professional' },
+                      { value: 'Casual', label: 'Casual & Friendly' },
+                      { value: 'Provocative', label: 'Provocative / Edgy' },
+                      { value: 'Educational', label: 'Educational' },
+                      { value: 'Entertaining', label: 'Entertaining / Fun' },
+                    ]}
+                    id="ai-tone-default"
+                  />
+                </div>
+
+                <Button variant="primary" onClick={handleSaveApiKey}>Save AI Settings</Button>
+              </div>
+
+              <div className="rounded-xl border border-violet/10 bg-violet/5 p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles size={14} className="text-violet" />
+                  <p className="text-sm font-medium text-white/70">AI Script Generator</p>
+                </div>
+                <p className="text-xs text-white/40 leading-relaxed">
+                  Generate hooks, titles, and full script outlines using AI. Configure your API key above, then open the Script Studio and click <span className="text-violet">AI Generate</span> to start.
+                </p>
               </div>
             </div>
           )}
