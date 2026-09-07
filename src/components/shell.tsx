@@ -7,6 +7,7 @@ import { TopBar } from '@/components/top-bar'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { cn } from '@/lib/utils'
+import { useData } from '@/lib/data-context'
 
 export function Shell({ children }: { children: React.ReactNode }) {
   return (
@@ -20,13 +21,12 @@ export function Shell({ children }: { children: React.ReactNode }) {
 
 function ShellInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const { data } = useData()
   const [mounted, setMounted] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
     setMounted(true)
-
-    // Keyboard shortcut for search
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault()
@@ -38,13 +38,12 @@ function ShellInner({ children }: { children: React.ReactNode }) {
 
   if (!mounted) return null
 
-  // Onboarding page doesn't have the shell
   if (pathname === '/onboarding') {
     return <>{children}</>
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className={cn('min-h-screen bg-background', data.settings.theme === 'light' ? 'light-theme' : '')}>
       {/* Mobile overlay backdrop */}
       {sidebarOpen && (
         <div
@@ -61,18 +60,16 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         <Sidebar mobile onClose={() => setSidebarOpen(false)} />
       </div>
 
-      {/* Desktop sidebar — always visible */}
-      <div className="hidden md:block">
+      {/* Desktop sidebar */}
+      <div className="hidden md:block fixed top-0 left-0 h-screen z-30">
         <Sidebar />
       </div>
 
-      {/* Content area */}
-      <div className={cn('flex flex-col min-h-screen transition-all duration-300', 'ml-0 md:ml-[240px]')}>
+      {/* Content area — ml-[240px] on desktop, ml-0 on mobile */}
+      <div className={cn('transition-all duration-300', 'ml-0 md:ml-[240px]')}>
         <TopBar onMenuClick={() => setSidebarOpen(true)} />
-        <main className="flex-1 flex flex-col p-6 pb-24 md:pb-6">
-          <div className="flex-1 flex flex-col">
-            {children}
-          </div>
+        <main className="p-6 pb-24 md:pb-6 pt-20">
+          {children}
         </main>
       </div>
 

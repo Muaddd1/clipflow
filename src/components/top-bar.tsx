@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Search, Bell, Plus, X, User, Settings, LogOut, ChevronRight, Menu } from 'lucide-react'
+import { Search, Bell, Plus, X, User, Settings, LogOut, ChevronRight, Menu, FileVideo, Lightbulb, PenTool, Sun, Moon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -30,22 +30,38 @@ export function TopBar({ onMenuClick }: TopBarProps) {
   const [notifOpen, setNotifOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const router = useRouter()
-  const { data } = useData()
+  const { data, updateSettings } = useData()
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    if (query.trim()) {
-      router.push(`/content?q=${encodeURIComponent(query)}`)
-      setSearchOpen(false)
-      setQuery('')
-    }
+    if (!query.trim()) return
+
+    const q = encodeURIComponent(query)
+    // Search across content, ideas, and scripts
+    router.push(`/content?q=${q}`)
+    setSearchOpen(false)
+    setQuery('')
   }
+
+  const filteredContent = data.content.filter(c =>
+    c.title.toLowerCase().includes(query.toLowerCase())
+  )
+  const filteredIdeas = data.ideas.filter(i =>
+    i.title.toLowerCase().includes(query.toLowerCase()) ||
+    i.description?.toLowerCase().includes(query.toLowerCase())
+  )
+  const filteredScripts = data.scripts.filter(s =>
+    s.title.toLowerCase().includes(query.toLowerCase())
+  )
 
   const initials = getInitials(data.settings.profile.name)
 
   return (
     <>
-      <header className="sticky top-0 z-30 h-16 flex items-center justify-between px-6 bg-surface/80 backdrop-blur-md border-b border-white/[0.05]">
+      <header className={cn(
+        'fixed top-0 right-0 z-30 h-16 flex items-center justify-between px-6 bg-surface/80 backdrop-blur-md border-b border-white/[0.05] transition-all duration-300',
+        'ml-0 md:ml-[240px]'
+      )}>
         {/* Mobile hamburger */}
         <button
           onClick={onMenuClick}
@@ -66,6 +82,17 @@ export function TopBar({ onMenuClick }: TopBarProps) {
 
         {/* Right side */}
         <div className="flex items-center gap-3">
+          {/* Theme toggle */}
+          <button
+            onClick={() => {
+              const next = data.settings.theme === 'dark' ? 'light' : 'dark'
+              updateSettings({ theme: next })
+            }}
+            className="w-9 h-9 rounded-lg bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-white/40 hover:text-white/70 transition-colors"
+          >
+            {data.settings.theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+          </button>
+
           {/* Notifications */}
           <div className="relative">
             <button
@@ -81,11 +108,31 @@ export function TopBar({ onMenuClick }: TopBarProps) {
                   <p className="text-sm font-semibold text-white">Notifications</p>
                   <button onClick={() => setNotifOpen(false)} className="text-white/20 hover:text-white/40"><X size={14} /></button>
                 </div>
-                <div className="p-4 text-center text-sm text-white/30">
-                  <Bell size={20} className="mx-auto mb-2 opacity-30" />
-                  <p>All caught up!</p>
-                  <p className="text-xs text-white/20 mt-1">New features coming soon</p>
-                </div>
+                {(() => {
+                  const today = new Date().toISOString().split('T')[0]
+                  const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0]
+                  const recItems = data.content.filter(c =>
+                    c.status === 'recording' || (c.scheduledAt && c.scheduledAt <= tomorrow && c.status !== 'published')
+                  )
+                  if (recItems.length === 0) return (
+                    <div className="p-4 text-center text-sm text-white/30">
+                      <Bell size={20} className="mx-auto mb-2 opacity-30" />
+                      <p>All caught up!</p>
+                    </div>
+                  )
+                  return (
+                    <div className="max-h-64 overflow-y-auto">
+                      {recItems.slice(0, 5).map(c => (
+                        <div key={c.id} className="px-4 py-3 border-b border-white/[0.04] hover:bg-white/[0.02]">
+                          <p className="text-sm text-white/80 font-medium">{c.title}</p>
+                          <p className="text-xs text-white/30 mt-0.5">
+                            {c.status === 'recording' ? '🎬 Ready to record' : c.scheduledAt === today ? '📅 Recording today' : '📅 Recording soon'}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                })()}
               </div>
             )}
           </div>
@@ -149,24 +196,69 @@ export function TopBar({ onMenuClick }: TopBarProps) {
               <X size={14} />
             </button>
           </form>
-          <div className="p-4">
-            <p className="text-xs text-white/30 mb-3">Quick actions</p>
-            <div className="space-y-1">
-              {quickActions.map(action => (
-                <button
-                  key={action.label}
-                  onClick={() => {
-                    router.push(action.href)
-                    setSearchOpen(false)
-                  }}
-                  className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/[0.05] transition-colors text-left"
-                >
-                  <Plus size={14} className="text-violet" />
-                  {action.label}
-                </button>
-              ))}
+
+          {query.trim() ? (
+            <div className="max-h-80 overflow-y-auto">
+              {filteredContent.length > 0 && (
+                <div className="p-3 border-b border-white/[0.06]">
+                  <p className="text-[10px] font-mono text-white/30 uppercase tracking-wider mb-2">Content</p>
+                  {filteredContent.slice(0, 3).map(c => (
+                    <button key={c.id} onClick={() => { router.push(`/content/${c.id}`); setSearchOpen(false) }}
+                      className="w-full flex items-center gap-2 px-2 py-1.5 rounded text-sm text-white/60 hover:text-white hover:bg-white/[0.05] text-left">
+                      <FileVideo size={12} className="text-white/20 shrink-0" />
+                      <span className="truncate">{c.title}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {filteredIdeas.length > 0 && (
+                <div className="p-3 border-b border-white/[0.06]">
+                  <p className="text-[10px] font-mono text-white/30 uppercase tracking-wider mb-2">Ideas</p>
+                  {filteredIdeas.slice(0, 3).map(i => (
+                    <button key={i.id} onClick={() => { router.push(`/ideas?id=${i.id}`); setSearchOpen(false) }}
+                      className="w-full flex items-center gap-2 px-2 py-1.5 rounded text-sm text-white/60 hover:text-white hover:bg-white/[0.05] text-left">
+                      <Lightbulb size={12} className="text-white/20 shrink-0" />
+                      <span className="truncate">{i.title}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {filteredScripts.length > 0 && (
+                <div className="p-3">
+                  <p className="text-[10px] font-mono text-white/30 uppercase tracking-wider mb-2">Scripts</p>
+                  {filteredScripts.slice(0, 3).map(s => (
+                    <button key={s.id} onClick={() => { router.push(`/scripts?id=${s.id}`); setSearchOpen(false) }}
+                      className="w-full flex items-center gap-2 px-2 py-1.5 rounded text-sm text-white/60 hover:text-white hover:bg-white/[0.05] text-left">
+                      <PenTool size={12} className="text-white/20 shrink-0" />
+                      <span className="truncate">{s.title}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {filteredContent.length === 0 && filteredIdeas.length === 0 && filteredScripts.length === 0 && (
+                <div className="p-6 text-center text-sm text-white/30">No results for "{query}"</div>
+              )}
             </div>
-          </div>
+          ) : (
+            <div className="p-4">
+              <p className="text-xs text-white/30 mb-3">Quick actions</p>
+              <div className="space-y-1">
+                {quickActions.map(action => (
+                  <button
+                    key={action.label}
+                    onClick={() => {
+                      router.push(action.href)
+                      setSearchOpen(false)
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/[0.05] transition-colors text-left"
+                  >
+                    <Plus size={14} className="text-violet" />
+                    {action.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </DialogBody>
       </Dialog>
 
