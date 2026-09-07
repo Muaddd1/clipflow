@@ -9,7 +9,7 @@ import { Dialog, DialogHeader, DialogTitle, DialogBody, DialogFooter } from '@/c
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
-import { generateScript, parseScriptOutput, type ParsedScript, testAIConnection } from '@/lib/ai'
+import { generateScript, parseScriptOutput, type ParsedScript } from '@/lib/ai'
 import type { Platform } from '@/lib/types'
 
 interface AiScriptGeneratorProps {
@@ -77,7 +77,7 @@ export function AiScriptGenerator({ open, onOpenChange, initialTopic = '', initi
   const [showSaveForm, setShowSaveForm] = useState(false)
   const [saveTitle, setSaveTitle] = useState('')
 
-  const hasApiKey = typeof window !== 'undefined' && !!localStorage.getItem('clipflow-openai-key')
+  const hasApiKey = typeof window !== 'undefined' && !!localStorage.getItem('clipflow-groq-key')
 
   useEffect(() => {
     if (initialTopic) setTopic(initialTopic)
@@ -153,7 +153,7 @@ export function AiScriptGenerator({ open, onOpenChange, initialTopic = '', initi
             </div>
             <div>
               <p className="text-sm font-medium text-white">API Key Required</p>
-              <p className="text-xs text-white/40 mt-1">Add your OpenAI API key in Settings to use AI generation.</p>
+              <p className="text-xs text-white/40 mt-1">Add your Groq API key in Settings to use AI generation.</p>
             </div>
             <Button variant="primary" size="sm" onClick={() => { handleClose(); window.location.href = '/settings' }}>
               Go to Settings <ChevronRight size={14} />

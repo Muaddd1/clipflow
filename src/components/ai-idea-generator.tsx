@@ -68,7 +68,7 @@ export function AiIdeaGenerator({ open, onOpenChange, onSaveIdeas }: AiIdeaGener
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState<string | null>(null)
 
-  const hasApiKey = typeof window !== 'undefined' && !!localStorage.getItem('clipflow-openai-key')
+  const hasApiKey = typeof window !== 'undefined' && !!localStorage.getItem('clipflow-groq-key')
 
   useEffect(() => {
     if (open) {

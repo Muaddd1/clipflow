@@ -37,7 +37,7 @@ export default function RepurposePage() {
   const [copied, setCopied] = useState<string | null>(null)
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const hasApiKey = typeof window !== 'undefined' && !!localStorage.getItem('clipflow-openai-key')
+  const hasApiKey = typeof window !== 'undefined' && !!localStorage.getItem('clipflow-groq-key')
 
   const sourceContent = data.content.find(c => c.id === sourceId)
   const sourceScripts = sourceId ? data.scripts.filter(s => s.contentId === sourceId) : []

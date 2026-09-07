@@ -1,24 +1,7 @@
-import OpenAI from 'openai'
-
-export function getOpenAIClient(): OpenAI | null {
-  if (typeof window === 'undefined') return null
-  const key = localStorage.getItem('clipflow-openai-key')
-  if (!key) return null
-
-  // sk-proj- keys use the full key with a default project
-  if (key.startsWith('sk-proj-')) {
-    return new OpenAI({ apiKey: key, project: 'default', dangerouslyAllowBrowser: true })
-  }
-
-  return new OpenAI({ apiKey: key, dangerouslyAllowBrowser: true })
-}
-
 export async function testAIConnection(): Promise<boolean> {
-  const client = getOpenAIClient()
-  if (!client) return false
+  const key = localStorage.getItem('clipflow-groq-key')
+  if (!key) return false
   try {
-    // Use the Groq-compatible test via the API route instead of OpenAI SDK directly
-    const key = localStorage.getItem('clipflow-openai-key')
     const model = localStorage.getItem('clipflow-ai-model') || 'openai/gpt-oss-20b'
     const response = await fetch('/api/chat', {
       method: 'POST',
@@ -171,7 +154,7 @@ export async function generateScript(
 ): Promise<ParsedScript> {
   if (typeof window === 'undefined') throw new Error('Cannot call generateScript on server')
 
-  const key = localStorage.getItem('clipflow-openai-key')
+  const key = localStorage.getItem('clipflow-groq-key')
   if (!key) throw new Error('No API key configured. Add your key in Settings > AI.')
 
   // Use saved model from settings, fallback to gpt-oss-20b
@@ -247,7 +230,7 @@ export async function generateIdeas(
 ): Promise<ParsedIdea[]> {
   if (typeof window === 'undefined') throw new Error('Cannot call generateIdeas on server')
 
-  const key = localStorage.getItem('clipflow-openai-key')
+  const key = localStorage.getItem('clipflow-groq-key')
   if (!key) throw new Error('No API key configured. Add your key in Settings > AI.')
 
   const savedModel = localStorage.getItem('clipflow-ai-model') || 'openai/gpt-oss-20b'
@@ -283,7 +266,7 @@ export async function repurposeContent(
 ): Promise<RepurposeOutput[]> {
   if (typeof window === 'undefined') throw new Error('Cannot call repurposeContent on server')
 
-  const key = localStorage.getItem('clipflow-openai-key')
+  const key = localStorage.getItem('clipflow-groq-key')
   if (!key) throw new Error('No API key configured. Add your key in Settings > AI.')
 
   const savedModel = localStorage.getItem('clipflow-ai-model') || 'openai/gpt-oss-20b'

@@ -79,8 +79,8 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setAiApiKey(localStorage.getItem('clipflow-openai-key') || '')
-      setAiOrgId(localStorage.getItem('clipflow-openai-org') || '')
+      setAiApiKey(localStorage.getItem('clipflow-groq-key') || '')
+      setAiOrgId(localStorage.getItem('clipflow-groq-org') || '')
       setAiModel(localStorage.getItem('clipflow-ai-model') || 'openai/gpt-oss-20b')
       setAiDefaultTone(localStorage.getItem('clipflow-ai-tone') || 'Casual')
       setReplicateKey(localStorage.getItem('clipflow-replicate-key') || '')
@@ -90,14 +90,14 @@ export default function SettingsPage() {
   const handleSaveApiKey = () => {
     if (typeof window !== 'undefined') {
       if (aiApiKey.trim()) {
-        localStorage.setItem('clipflow-openai-key', aiApiKey.trim())
+        localStorage.setItem('clipflow-groq-key', aiApiKey.trim())
       } else {
-        localStorage.removeItem('clipflow-openai-key')
+        localStorage.removeItem('clipflow-groq-key')
       }
       if (aiOrgId.trim()) {
-        localStorage.setItem('clipflow-openai-org', aiOrgId.trim())
+        localStorage.setItem('clipflow-groq-org', aiOrgId.trim())
       } else {
-        localStorage.removeItem('clipflow-openai-org')
+        localStorage.removeItem('clipflow-groq-org')
       }
       localStorage.setItem('clipflow-ai-model', aiModel)
       localStorage.setItem('clipflow-ai-tone', aiDefaultTone)
@@ -120,8 +120,8 @@ export default function SettingsPage() {
         setTestingKey(false)
         return
       }
-      if (key) localStorage.setItem('clipflow-openai-key', key)
-      if (org) localStorage.setItem('clipflow-openai-org', org)
+      if (key) localStorage.setItem('clipflow-groq-key', key)
+      if (org) localStorage.setItem('clipflow-groq-org', org)
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
