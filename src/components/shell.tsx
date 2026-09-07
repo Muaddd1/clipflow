@@ -81,7 +81,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         </div>
         <div className={cn('transition-all duration-300 ml-0 md:ml-[240px]')}>
           <TopBar onMenuClick={() => setSidebarOpen(true)} />
-          <main className="p-6 pb-20 md:pb-6">
+          <main className="p-6 pb-24 md:pb-6">
             {children}
           </main>
         </div>

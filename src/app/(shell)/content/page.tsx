@@ -205,6 +205,8 @@ export default function ContentPage() {
             {filtered.map(content => (
               <ContentRow key={content.id} content={content} onDelete={handleDelete} />
             ))}
+            {/* Bottom safe area for mobile nav */}
+            <div className="h-16 sm:h-0" />
           </div>
         ) : (
           <EmptyState
