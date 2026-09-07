@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import { useData } from '@/lib/data-context'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -9,7 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { Dialog, DialogHeader, DialogTitle, DialogBody, DialogFooter } from '@/components/ui/dialog'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
-import { Calendar as CalendarIcon, Plus, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Calendar as CalendarIcon, Plus, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react'
 import { platformColor, formatDate } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 import type { Platform, ContentStatus } from '@/lib/types'
@@ -19,11 +20,11 @@ const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
 
 export default function CalendarPage() {
-  const { data, addCalendarEvent, deleteCalendarEvent } = useData()
+  const { data, addCalendarEvent, deleteCalendarEvent, updateContent } = useData()
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth())
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [newForm, setNewForm] = useState({ title: '', platform: 'youtube' as Platform, date: '', status: 'scheduled' as ContentStatus })
+  const [newForm, setNewForm] = useState({ title: '', platform: 'youtube' as Platform, date: '', status: 'scheduled' as ContentStatus, contentId: '' })
   const [selectedEvent, setSelectedEvent] = useState<string | null>(null)
   const [deleteEventId, setDeleteEventId] = useState<string | null>(null)
 
@@ -46,10 +47,14 @@ export default function CalendarPage() {
 
   const handleAdd = () => {
     if (!newForm.title.trim() || !newForm.date) { toast.error('Title and date required'); return }
-    addCalendarEvent({ ...newForm, contentId: '' })
+    addCalendarEvent({ ...newForm })
+    if (newForm.contentId) {
+      const content = data.content.find(c => c.id === newForm.contentId)
+      if (content) updateContent(newForm.contentId, { scheduledAt: newForm.date, status: 'scheduled' })
+    }
     toast.success('Content scheduled')
     setDialogOpen(false)
-    setNewForm({ title: '', platform: 'youtube', date: '', status: 'scheduled' })
+    setNewForm({ title: '', platform: 'youtube', date: '', status: 'scheduled', contentId: '' })
   }
 
   const grid: (number | null)[] = []
@@ -134,6 +139,27 @@ export default function CalendarPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogHeader><DialogTitle>Schedule Content</DialogTitle></DialogHeader>
         <DialogBody className="space-y-4">
+          <div>
+            <label className="text-xs font-mono text-white/40 uppercase tracking-wider mb-1.5 block">Link Content</label>
+            <select
+              value={newForm.contentId}
+              onChange={e => {
+                const cid = e.target.value
+                if (cid) {
+                  const content = data.content.find(c => c.id === cid)
+                  if (content) setNewForm(p => ({ ...p, contentId: cid, title: content.title, platform: content.platform }))
+                } else {
+                  setNewForm(p => ({ ...p, contentId: '' }))
+                }
+              }}
+              className="w-full bg-white/[0.03] border border-white/[0.07] rounded-lg px-4 py-2.5 text-sm text-white outline-none focus:border-violet/50 transition-all appearance-none"
+            >
+              <option value="">— No linked content —</option>
+              {data.content.filter(c => c.status !== 'published').map(c => (
+                <option key={c.id} value={c.id}>{c.title} ({c.platform})</option>
+              ))}
+            </select>
+          </div>
           <Input label="Title" value={newForm.title} onChange={e => setNewForm(p => ({ ...p, title: e.target.value }))} placeholder="Content title..." />
           <div className="grid grid-cols-2 gap-4">
             <Select label="Platform" value={newForm.platform} onValueChange={v => setNewForm(p => ({ ...p, platform: v as Platform }))}
@@ -151,6 +177,7 @@ export default function CalendarPage() {
       {selectedEvent && (() => {
         const event = data.calendar.find(e => e.id === selectedEvent)
         if (!event) return null
+        const linkedContent = event.contentId ? data.content.find(c => c.id === event.contentId) : null
         return (
           <Dialog open={!!selectedEvent} onOpenChange={v => !v && setSelectedEvent(null)}>
             <DialogHeader>
@@ -165,6 +192,22 @@ export default function CalendarPage() {
                 <p><span className="text-white/30">Date:</span> {formatDate(event.date)}</p>
                 {event.time && <p><span className="text-white/30">Time:</span> {event.time}</p>}
               </div>
+              {linkedContent && (
+                <div className="p-3 rounded-lg bg-white/[0.03] border border-white/[0.06]">
+                  <p className="text-[10px] font-mono text-white/25 uppercase tracking-wider mb-2">Linked Content</p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-white font-medium">{linkedContent.title}</p>
+                      <p className="text-xs text-white/30 capitalize">{linkedContent.status.replace('_', ' ')}</p>
+                    </div>
+                    <Link href={`/content/${linkedContent.id}`} onClick={() => setSelectedEvent(null)}>
+                      <Button variant="secondary" size="sm">
+                        <ExternalLink size={12} />View
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              )}
             </DialogBody>
             <DialogFooter>
               <Button variant="destructive" size="sm" onClick={() => { setDeleteEventId(event.id); setSelectedEvent(null) }}>

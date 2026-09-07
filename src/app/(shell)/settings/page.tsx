@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Settings, User, Sliders, Palette, Bell, Database, ChevronRight, Check, Sparkles, Eye, EyeOff } from 'lucide-react'
-import { testAIConnection } from '@/lib/ai'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import type { Platform, AppSettings } from '@/lib/types'
@@ -69,16 +68,22 @@ export default function SettingsPage() {
   })
 
   const [aiApiKey, setAiApiKey] = useState('')
-  const [aiModel, setAiModel] = useState('gpt-4o')
+  const [aiOrgId, setAiOrgId] = useState('')
+  const [aiModel, setAiModel] = useState('openai/gpt-oss-20b')
   const [aiDefaultTone, setAiDefaultTone] = useState('Casual')
   const [showApiKey, setShowApiKey] = useState(false)
   const [testingKey, setTestingKey] = useState(false)
+  const [replicateKey, setReplicateKey] = useState('')
+  const [showReplicateKey, setShowReplicateKey] = useState(false)
+  const [testingReplicate, setTestingReplicate] = useState(false)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setAiApiKey(localStorage.getItem('clipflow-openai-key') || '')
-      setAiModel(localStorage.getItem('clipflow-ai-model') || 'gpt-4o')
+      setAiOrgId(localStorage.getItem('clipflow-openai-org') || '')
+      setAiModel(localStorage.getItem('clipflow-ai-model') || 'openai/gpt-oss-20b')
       setAiDefaultTone(localStorage.getItem('clipflow-ai-tone') || 'Casual')
+      setReplicateKey(localStorage.getItem('clipflow-replicate-key') || '')
     }
   }, [])
 
@@ -89,24 +94,85 @@ export default function SettingsPage() {
       } else {
         localStorage.removeItem('clipflow-openai-key')
       }
+      if (aiOrgId.trim()) {
+        localStorage.setItem('clipflow-openai-org', aiOrgId.trim())
+      } else {
+        localStorage.removeItem('clipflow-openai-org')
+      }
       localStorage.setItem('clipflow-ai-model', aiModel)
       localStorage.setItem('clipflow-ai-tone', aiDefaultTone)
+      if (replicateKey.trim()) {
+        localStorage.setItem('clipflow-replicate-key', replicateKey.trim())
+      } else {
+        localStorage.removeItem('clipflow-replicate-key')
+      }
     }
     toast.success('AI settings saved')
   }
 
-  const handleTestConnection = async () => {
+  const handleTestGroq = async () => {
     setTestingKey(true)
     try {
-      // Temporarily save key for test
-      if (aiApiKey.trim()) localStorage.setItem('clipflow-openai-key', aiApiKey.trim())
-      const ok = await testAIConnection()
-      if (ok) toast.success('Connection successful!')
-      else toast.error('Connection failed. Check your API key.')
+      const key = aiApiKey.trim()
+      const org = aiOrgId.trim()
+      if (!key) {
+        toast.error('Please enter a Groq API key first')
+        setTestingKey(false)
+        return
+      }
+      if (key) localStorage.setItem('clipflow-openai-key', key)
+      if (org) localStorage.setItem('clipflow-openai-org', org)
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          key,
+          topic: 'test connection',
+          platform: 'youtube',
+          contentType: 'Tutorial',
+          tone: 'Casual',
+          duration: '1-3 min',
+          model: aiModel,
+        }),
+      })
+      const result = await response.json()
+      if (response.ok) {
+        toast.success('Groq connection successful!')
+      } else {
+        toast.error(result.error || 'Connection failed. Check your API key.')
+      }
     } catch {
       toast.error('Connection failed. Check your API key.')
     } finally {
       setTestingKey(false)
+    }
+  }
+
+  const handleTestReplicate = async () => {
+    setTestingReplicate(true)
+    try {
+      const key = replicateKey.trim()
+      if (!key) {
+        toast.error('Please enter a Replicate API key first')
+        setTestingReplicate(false)
+        return
+      }
+      localStorage.setItem('clipflow-replicate-key', key)
+      const response = await fetch('/api/thumbnail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey: key, test: true }),
+      })
+      const result = await response.json()
+      if (response.ok) {
+        toast.success('Replicate connection successful!')
+      } else {
+        toast.error(result.error || 'Connection failed.')
+      }
+    } catch {
+      toast.error('Connection failed. Check your API key.')
+    } finally {
+      setTestingReplicate(false)
     }
   }
 
@@ -145,6 +211,23 @@ export default function SettingsPage() {
       return next
     })
     toast.success('Notification setting updated')
+  }
+
+  const handleExportCsv = () => {
+    const headers = ['Title', 'Platform', 'Status', 'Views', 'Likes', 'Comments', 'Shares', 'Engagement', 'Revenue', 'Tags', 'Created']
+    const rows = data.content.map(c => [
+      `"${c.title}"`, c.platform, c.status, c.views, c.likes, c.comments, c.shares, c.engagementRate, c.revenue,
+      `"${(c.tags || []).join(', ')}"`, c.createdAt,
+    ])
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `clipflow-content-${new Date().toISOString().split('T')[0]}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+    toast.success('Content exported as CSV')
   }
 
   const handleExport = () => {
@@ -272,11 +355,6 @@ export default function SettingsPage() {
                       key={v}
                       onClick={() => {
                         updateSettings({ theme: v })
-                        if (v === 'dark') {
-                          document.documentElement.removeAttribute('data-theme')
-                        } else {
-                          document.documentElement.setAttribute('data-theme', v)
-                        }
                         toast.success(`${label} theme applied`)
                       }}
                       className={cn('h-16 rounded-xl border-2 transition-all flex items-center justify-center text-sm font-medium',
@@ -307,25 +385,47 @@ export default function SettingsPage() {
             <div className="space-y-5">
               <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 space-y-4">
                 <div>
-                  <label className="text-xs font-mono text-white/40 uppercase tracking-wider mb-1.5 block">OpenAI API Key</label>
+                  <label className="text-xs font-mono text-white/40 uppercase tracking-wider mb-1.5 block">Groq API Key</label>
                   <div className="flex items-center gap-2">
                     <div className="relative flex-1">
                       <input
                         type={showApiKey ? 'text' : 'password'}
                         value={aiApiKey}
                         onChange={e => setAiApiKey(e.target.value)}
-                        placeholder="sk-..."
+                        placeholder="gsk_..."
                         className="w-full bg-white/[0.03] border border-white/[0.07] rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-violet/50 pr-10"
                       />
                       <button onClick={() => setShowApiKey(!showApiKey)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60">
                         {showApiKey ? <EyeOff size={14} /> : <Eye size={14} />}
                       </button>
                     </div>
-                    <Button variant="secondary" size="sm" onClick={handleTestConnection} disabled={testingKey || !aiApiKey.trim()}>
+                    <Button variant="secondary" size="sm" onClick={handleTestGroq} disabled={testingKey || !aiApiKey.trim()}>
                       {testingKey ? 'Testing...' : 'Test'}
                     </Button>
                   </div>
-                  <p className="text-xs text-white/20 mt-1.5">Your key is stored locally and never sent to our servers.</p>
+                  <p className="text-xs text-white/20 mt-1.5">Free API key from console.groq.com — no credit card needed. Used for script generation.</p>
+                </div>
+
+                <div>
+                  <label className="text-xs font-mono text-white/40 uppercase tracking-wider mb-1.5 block">Replicate API Key</label>
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <input
+                        type={showReplicateKey ? 'text' : 'password'}
+                        value={replicateKey}
+                        onChange={e => setReplicateKey(e.target.value)}
+                        placeholder="r8_..."
+                        className="w-full bg-white/[0.03] border border-white/[0.07] rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-violet/50 pr-10"
+                      />
+                      <button onClick={() => setShowReplicateKey(!showReplicateKey)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60">
+                        {showReplicateKey ? <EyeOff size={14} /> : <Eye size={14} />}
+                      </button>
+                    </div>
+                    <Button variant="secondary" size="sm" onClick={handleTestReplicate} disabled={testingReplicate || !replicateKey.trim()}>
+                      {testingReplicate ? 'Testing...' : 'Test'}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-white/20 mt-1.5">Free tier at replicate.com — used for AI thumbnail generation. <span className="text-violet">Flux Kontext</span> model creates the thumbnails.</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -334,8 +434,9 @@ export default function SettingsPage() {
                     value={aiModel}
                     onValueChange={setAiModel}
                     options={[
-                      { value: 'gpt-4o', label: 'GPT-4o (Best quality)' },
-                      { value: 'gpt-4o-mini', label: 'GPT-4o Mini (Faster)' },
+                      { value: 'openai/gpt-oss-20b', label: 'GPT-OSS 20B (Fast)' },
+                      { value: 'openai/gpt-oss-120b', label: 'GPT-OSS 120B (Best)' },
+                      { value: 'qwen/qwen3.6-27b', label: 'Qwen 3.6 27B' },
                     ]}
                     id="ai-model"
                   />
@@ -360,10 +461,10 @@ export default function SettingsPage() {
               <div className="rounded-xl border border-violet/10 bg-violet/5 p-5">
                 <div className="flex items-center gap-2 mb-3">
                   <Sparkles size={14} className="text-violet" />
-                  <p className="text-sm font-medium text-white/70">AI Script Generator</p>
+                  <p className="text-sm font-medium text-white/70">AI Features</p>
                 </div>
                 <p className="text-xs text-white/40 leading-relaxed">
-                  Generate hooks, titles, and full script outlines using AI. Configure your API key above, then open the Script Studio and click <span className="text-violet">AI Generate</span> to start.
+                  Groq API powers <span className="text-violet">script generation</span>. Replicate powers <span className="text-violet">thumbnail generation</span> using Flux Kontext — enter a prompt describing your thumbnail style, and AI creates it in seconds.
                 </p>
               </div>
             </div>
@@ -398,10 +499,17 @@ export default function SettingsPage() {
               <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-white/70">Export Data</p>
-                    <p className="text-xs text-white/30 mt-0.5">Download all your data as JSON</p>
+                    <p className="text-sm font-medium text-white/70">Export Content Log</p>
+                    <p className="text-xs text-white/30 mt-0.5">Download content as CSV spreadsheet</p>
                   </div>
-                  <Button variant="secondary" size="sm" onClick={handleExport}>Export</Button>
+                  <Button variant="secondary" size="sm" onClick={handleExportCsv}>Export CSV</Button>
+                </div>
+                <div className="flex items-center justify-between pt-2 border-t border-white/[0.04]">
+                  <div>
+                    <p className="text-sm font-medium text-white/70">Full Backup</p>
+                    <p className="text-xs text-white/30 mt-0.5">Download all data as JSON</p>
+                  </div>
+                  <Button variant="secondary" size="sm" onClick={handleExport}>Export JSON</Button>
                 </div>
               </div>
 

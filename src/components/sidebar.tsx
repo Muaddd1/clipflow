@@ -11,7 +11,7 @@ import {
   PenTool,
   Handshake,
   BarChart3,
-  RefreshCw,
+  Recycle,
   FolderOpen,
   Settings,
   ChevronLeft,
@@ -42,7 +42,7 @@ const nav = [
   {
     label: 'Tools',
     items: [
-      { href: '/repurpose', label: 'Repurpose', icon: RefreshCw },
+      { href: '/repurpose', label: 'Repurpose', icon: Recycle },
       { href: '/library', label: 'Library', icon: FolderOpen },
     ],
   },

@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Dialog, DialogHeader, DialogTitle, DialogBody, DialogFooter } from '@/components/ui/dialog'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
-import { FolderOpen, Upload, Trash2, FileVideo, FileImage, FileText, File, Eye, Edit } from 'lucide-react'
+import { FolderOpen, Upload, Trash2, FileVideo, FileImage, FileText, File, Eye, Edit, Search, Tag, SortAsc } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -33,18 +33,36 @@ const typeMap: Record<string, string[]> = {
 export default function LibraryPage() {
   const { data, addLibraryItem, updateLibraryItem, deleteLibraryItem } = useData()
   const [category, setCategory] = useState('All')
+  const [search, setSearch] = useState('')
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'name' | 'size'>('newest')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [previewId, setPreviewId] = useState<string | null>(null)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [renameId, setRenameId] = useState<string | null>(null)
   const [newName, setNewName] = useState('')
   const [uploadLoading, setUploadLoading] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [tagInput, setTagInput] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const filtered = category === 'All' ? data.library : data.library.filter(item => {
-    const types = typeMap[category] || []
-    return types.some(t => item.type.includes(t.split('/')[0]))
-  })
+  const filtered = (() => {
+    let items = category === 'All' ? data.library : data.library.filter(item => {
+      const types = typeMap[category] || []
+      return types.some(t => item.type.includes(t.split('/')[0]))
+    })
+    if (search) {
+      const q = search.toLowerCase()
+      items = items.filter(i => i.name.toLowerCase().includes(q) || i.category.toLowerCase().includes(q))
+    }
+    items = [...items].sort((a, b) => {
+      if (sortBy === 'newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      if (sortBy === 'oldest') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      if (sortBy === 'name') return a.name.localeCompare(b.name)
+      if (sortBy === 'size') return b.size - a.size
+      return 0
+    })
+    return items
+  })()
 
   const preview = previewId ? data.library.find(i => i.id === previewId) : null
 
@@ -114,16 +132,54 @@ export default function LibraryPage() {
         ))}
       </div>
 
+      {/* Search + Sort bar */}
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 bg-white/[0.03] border border-white/[0.06] rounded-lg px-3 py-2 flex-1 max-w-sm">
+          <Search size={13} className="text-white/30 shrink-0" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search files by name..." className="flex-1 bg-transparent text-sm text-white placeholder:text-white/20 outline-none" />
+        </div>
+        <select
+          value={sortBy}
+          onChange={e => setSortBy(e.target.value as any)}
+          className="bg-white/[0.03] border border-white/[0.06] rounded-lg px-3 py-2 text-xs text-white/50 outline-none"
+        >
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="name">Name A-Z</option>
+          <option value="size">Largest first</option>
+        </select>
+        {selectedIds.length > 0 && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-violet">{selectedIds.length} selected</span>
+            <Button variant="destructive" size="sm" onClick={() => {
+              selectedIds.forEach(id => deleteLibraryItem(id))
+              toast.success(`${selectedIds.length} files deleted`)
+              setSelectedIds([])
+            }}>Delete</Button>
+            <button onClick={() => setSelectedIds([])} className="text-xs text-white/30 hover:text-white/60">Clear</button>
+          </div>
+        )}
+      </div>
+
       {/* Grid */}
       {filtered.length === 0 ? (
         <EmptyState icon={<FolderOpen size={24} />} title="No files yet" description="Upload your first file to build your media library." action={<Button variant="secondary" onClick={() => fileRef.current?.click()}><Upload size={14} />Upload Files</Button>} />
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-4">
           {filtered.map(item => (
-            <div key={item.id} className="group rounded-xl border border-white/[0.06] bg-white/[0.02] overflow-hidden hover:bg-white/[0.04] transition-colors cursor-pointer"
+            <div key={item.id} className={cn(
+              'group rounded-xl border overflow-hidden transition-colors cursor-pointer',
+              selectedIds.includes(item.id) ? 'border-violet bg-violet/5' : 'border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]'
+            )}
               onClick={() => setPreviewId(item.id)}>
               {/* Preview thumb */}
               <div className="aspect-video bg-white/[0.02] flex items-center justify-center relative">
+                <input
+                  type="checkbox"
+                  checked={selectedIds.includes(item.id)}
+                  onChange={e => { e.stopPropagation(); setSelectedIds(prev => prev.includes(item.id) ? prev.filter(x => x !== item.id) : [...prev, item.id]) }}
+                  className="absolute top-2 left-2 w-4 h-4 accent-violet z-10 cursor-pointer"
+                />
                 {item.url.startsWith('data:image') || item.url.startsWith('data:video') ? (
                   <img src={item.url} alt={item.name} className="w-full h-full object-cover" />
                 ) : item.url.startsWith('data:video') ? (

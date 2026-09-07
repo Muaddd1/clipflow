@@ -15,6 +15,9 @@ interface DataContextValue {
   addContent: (content: Omit<Content, 'id' | 'createdAt' | 'updatedAt'>) => void
   updateContent: (id: string, updates: Partial<Content>) => void
   deleteContent: (id: string) => void
+  duplicateContent: (id: string) => void
+  deleteManyContent: (ids: string[]) => void
+  updateManyContent: (ids: string[], updates: Partial<Content>) => void
   getContent: (id: string) => Content | undefined
   // Ideas
   addIdea: (idea: Omit<Idea, 'id' | 'createdAt' | 'updatedAt'>) => void
@@ -52,7 +55,7 @@ interface DataContextValue {
 const defaultContextValue: DataContextValue = {
   data: seedData,
   getChannel: () => undefined,
-  addContent: () => {}, updateContent: () => {}, deleteContent: () => {}, getContent: () => undefined,
+  addContent: () => {}, updateContent: () => {}, deleteContent: () => {}, duplicateContent: () => {}, deleteManyContent: () => {}, updateManyContent: () => {}, getContent: () => undefined,
   addIdea: () => {}, updateIdea: () => {}, deleteIdea: () => {}, getIdea: () => undefined,
   addScript: () => {}, updateScript: () => {}, deleteScript: () => {}, getScript: () => undefined,
   addSponsor: () => {}, updateSponsor: () => {}, deleteSponsor: () => {}, getSponsor: () => undefined,
@@ -125,6 +128,36 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const deleteContent = useCallback((id: string) => {
     setData(d => ({ ...d, content: d.content.filter(c => c.id !== id) }))
+  }, [])
+
+  const duplicateContent = useCallback((id: string) => {
+    const original = data.content.find(c => c.id === id)
+    if (!original) return
+    const now = new Date().toISOString()
+    const copy: Content = {
+      ...original,
+      id: uid(),
+      title: `${original.title} (Copy)`,
+      status: 'idea',
+      views: 0, likes: 0, comments: 0, shares: 0,
+      engagementRate: 0, revenue: 0,
+      scheduledAt: undefined,
+      publishedAt: undefined,
+      createdAt: now,
+      updatedAt: now,
+    }
+    setData(d => ({ ...d, content: [copy, ...d.content] }))
+  }, [data])
+
+  const deleteManyContent = useCallback((ids: string[]) => {
+    setData(d => ({ ...d, content: d.content.filter(c => !ids.includes(c.id)) }))
+  }, [])
+
+  const updateManyContent = useCallback((ids: string[], updates: Partial<Content>) => {
+    setData(d => ({
+      ...d,
+      content: d.content.map(c => ids.includes(c.id) ? { ...c, ...updates, updatedAt: new Date().toISOString() } : c),
+    }))
   }, [])
 
   const getContent = useCallback((id: string) => data.content.find(c => c.id === id), [data])
@@ -259,7 +292,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     <DataContext.Provider value={{
       data,
       getChannel,
-      addContent, updateContent, deleteContent, getContent,
+      addContent, updateContent, deleteContent, duplicateContent, deleteManyContent, updateManyContent, getContent,
       addIdea, updateIdea, deleteIdea, getIdea,
       addScript, updateScript, deleteScript, getScript,
       addSponsor, updateSponsor, deleteSponsor, getSponsor,

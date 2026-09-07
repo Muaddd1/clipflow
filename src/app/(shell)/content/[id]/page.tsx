@@ -11,8 +11,10 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { EmptyState } from '@/components/ui/empty-state'
 import {
   ArrowLeft, ThumbsUp, MessageCircle, Share2, Eye,
-  Calendar, DollarSign, FileText, Edit, Trash2, ExternalLink,
+  Calendar, DollarSign, FileText, Edit, Trash2, ExternalLink, Image, Wand2,
 } from 'lucide-react'
+import { ThumbnailUpload } from '@/components/thumbnail-upload'
+import { ThumbnailGenerator } from '@/components/thumbnail-generator'
 import { formatNumber, formatDate } from '@/lib/utils'
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -39,13 +41,14 @@ const statusOptions = [
 export default function ContentDetailPage() {
   const params = useParams()
   const router = useRouter()
-  const { getContent, updateContent, deleteContent, getScript } = useData()
+  const { getContent, updateContent, deleteContent, duplicateContent, getScript } = useData()
 
   const content = getContent(params.id as string)
   const script = content?.scriptId ? getScript(content.scriptId) : undefined
 
   const [editOpen, setEditOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const [generateOpen, setGenerateOpen] = useState(false)
   const [editForm, setEditForm] = useState({
     title: content?.title || '',
     description: content?.description || '',
@@ -57,6 +60,7 @@ export default function ContentDetailPage() {
     shares: content?.shares || 0,
     engagementRate: content?.engagementRate || 0,
     revenue: content?.revenue || 0,
+    thumbnail: content?.thumbnail || '',
   })
 
   if (!content) {
@@ -100,6 +104,21 @@ export default function ContentDetailPage() {
           >
             <ArrowLeft size={15} />
           </button>
+          {content.thumbnail ? (
+            <button onClick={() => setGenerateOpen(true)} className="group relative">
+              <img src={content.thumbnail} alt="" className="w-16 h-10 rounded-lg object-cover" />
+              <div className="absolute inset-0 rounded-lg bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                <Wand2 size={12} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+            </button>
+          ) : (
+            <button
+              onClick={() => setGenerateOpen(true)}
+              className="w-16 h-10 rounded-lg bg-white/[0.04] border border-dashed border-white/[0.1] flex items-center justify-center hover:bg-white/[0.07] transition-colors"
+            >
+              <Wand2 size={14} className="text-white/30" />
+            </button>
+          )}
           <div>
             <h1 className="text-xl font-bold text-white">{content.title}</h1>
             <div className="flex items-center gap-3 mt-1">
@@ -115,6 +134,9 @@ export default function ContentDetailPage() {
           <Button variant="secondary" size="sm" onClick={() => setEditOpen(true)}>
             <Edit size={14} />
             Edit
+          </Button>
+          <Button variant="secondary" size="sm" onClick={() => { duplicateContent(content.id); toast.success('Content duplicated') }}>
+            Copy
           </Button>
           <Button variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
             <Trash2 size={14} />
@@ -175,6 +197,21 @@ export default function ContentDetailPage() {
         <DialogHeader><DialogTitle>Edit Content</DialogTitle></DialogHeader>
         <DialogBody className="space-y-4">
           <Input label="Title" value={editForm.title} onChange={e => setEditForm(p => ({ ...p, title: e.target.value }))} />
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-mono text-white/40 uppercase tracking-wider">Thumbnail</label>
+              <button
+                onClick={() => setGenerateOpen(true)}
+                className="text-xs text-violet hover:text-violet/80 flex items-center gap-1 transition-colors"
+              >
+                <Wand2 size={11} /> Generate with AI
+              </button>
+            </div>
+            <ThumbnailUpload
+              value={editForm.thumbnail}
+              onChange={dataUrl => setEditForm(p => ({ ...p, thumbnail: dataUrl || '' }))}
+            />
+          </div>
           <div className="grid grid-cols-2 gap-4">
             <Select label="Platform" value={editForm.platform} onValueChange={v => setEditForm(p => ({ ...p, platform: v as Platform }))} options={platformOptions} id="content-platform" />
             <Select label="Status" value={editForm.status} onValueChange={v => setEditForm(p => ({ ...p, status: v as ContentStatus }))} options={statusOptions} />
@@ -200,6 +237,18 @@ export default function ContentDetailPage() {
         confirmLabel="Delete"
         destructive
         onConfirm={handleDelete}
+      />
+
+      <ThumbnailGenerator
+        open={generateOpen}
+        onOpenChange={setGenerateOpen}
+        contentTitle={content.title}
+        contentHook={content.description}
+        platform={content.platform}
+        onAccept={(dataUrl) => {
+          updateContent(content.id, { thumbnail: dataUrl })
+          toast.success('Thumbnail generated and saved!')
+        }}
       />
     </div>
   )

@@ -9,7 +9,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogHeader, DialogTitle, DialogBody, DialogFooter } from '@/components/ui/dialog'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
-import { PenTool, Plus, Trash2, Save, Clock, ArrowLeft, Sparkles } from 'lucide-react'
+import { PenTool, Plus, Trash2, Save, Clock, ArrowLeft, Sparkles, History, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react'
+import type { ScriptVersion } from '@/lib/types'
 import { formatDate, formatRelativeDate } from '@/lib/utils'
 import { toast } from 'sonner'
 import Link from 'next/link'
@@ -23,6 +24,7 @@ export default function ScriptsPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<string | null>(null)
+  const [historyOpen, setHistoryOpen] = useState(false)
   const [newForm, setNewForm] = useState({ title: '', hook: '', introduction: '', body: '', examples: '', cta: '', notes: '' })
 
   const script = editorId ? data.scripts.find(s => s.id === editorId) : null
@@ -61,6 +63,23 @@ export default function ScriptsPage() {
 
   const handleDelete = () => {
     if (deleteId) { deleteScript(deleteId); toast.success('Script deleted'); setDeleteId(null); if (editorId === deleteId) setEditorId(null) }
+  }
+
+  const handleRestoreVersion = (version: ScriptVersion) => {
+    if (!script) return
+    updateScript(script.id, {
+      title: version.content.title,
+      hook: version.content.hook,
+      introduction: version.content.introduction,
+      body: version.content.body,
+      examples: version.content.examples,
+      cta: version.content.cta,
+      notes: version.content.notes,
+      wordCount: version.content.wordCount,
+      charCount: version.content.charCount,
+    })
+    toast.success('Version restored')
+    setHistoryOpen(false)
   }
 
   // Script editor
@@ -127,6 +146,43 @@ export default function ScriptsPage() {
         </div>
 
         {lastSaved && <p className="text-xs text-white/20 flex items-center gap-1"><Clock size={10} />Saved {formatRelativeDate(lastSaved)}</p>}
+
+        {/* Version History */}
+        {script.versions.length > 0 && (
+          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] overflow-hidden">
+            <button
+              onClick={() => setHistoryOpen(!historyOpen)}
+              className="w-full flex items-center justify-between px-5 py-3 text-sm text-white/50 hover:text-white/70 transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <History size={14} />
+                Version History ({script.versions.length})
+              </span>
+              {historyOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </button>
+            {historyOpen && (
+              <div className="border-t border-white/[0.06] divide-y divide-white/[0.04] max-h-64 overflow-y-auto">
+                {script.versions.map((v, i) => (
+                  <div key={v.id} className="px-5 py-3 flex items-center justify-between gap-3 hover:bg-white/[0.02]">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-white/60 truncate">{v.content.title}</p>
+                      <p className="text-xs text-white/25">{v.content.wordCount} words · {formatDate(v.savedAt)}</p>
+                    </div>
+                    {i === 0 && <span className="text-[10px] font-mono text-violet bg-violet/10 px-1.5 py-0.5 rounded">Latest</span>}
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => handleRestoreVersion(v)}
+                      className="shrink-0"
+                    >
+                      <RotateCcw size={12} /> Restore
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         <ConfirmDialog open={!!deleteId} onOpenChange={v => !v && setDeleteId(null)} title="Delete script?" description="This will permanently delete this script." confirmLabel="Delete" destructive onConfirm={handleDelete} />
       </div>

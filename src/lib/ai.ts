@@ -4,6 +4,12 @@ export function getOpenAIClient(): OpenAI | null {
   if (typeof window === 'undefined') return null
   const key = localStorage.getItem('clipflow-openai-key')
   if (!key) return null
+
+  // sk-proj- keys use the full key with a default project
+  if (key.startsWith('sk-proj-')) {
+    return new OpenAI({ apiKey: key, project: 'default', dangerouslyAllowBrowser: true })
+  }
+
   return new OpenAI({ apiKey: key, dangerouslyAllowBrowser: true })
 }
 
@@ -11,12 +17,15 @@ export async function testAIConnection(): Promise<boolean> {
   const client = getOpenAIClient()
   if (!client) return false
   try {
-    await client.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [{ role: 'user', content: 'Say "Connection OK" in exactly those words.' }],
-      max_tokens: 10,
+    // Use the Groq-compatible test via the API route instead of OpenAI SDK directly
+    const key = localStorage.getItem('clipflow-openai-key')
+    const model = localStorage.getItem('clipflow-ai-model') || 'openai/gpt-oss-20b'
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key, topic: 'test', platform: 'youtube', contentType: 'Tutorial', tone: 'Casual', duration: '1-3 min', model }),
     })
-    return true
+    return response.ok
   } catch {
     return false
   }
@@ -158,19 +167,151 @@ export async function generateScript(
   contentType: string,
   tone: string,
   duration: string,
-  model = 'gpt-4o'
+  model?: string
 ): Promise<ParsedScript> {
-  const client = getOpenAIClient()
-  if (!client) throw new Error('No API key configured. Add your key in Settings > AI.')
+  if (typeof window === 'undefined') throw new Error('Cannot call generateScript on server')
 
-  const prompt = buildScriptPrompt(topic, platform, contentType, tone, duration)
+  const key = localStorage.getItem('clipflow-openai-key')
+  if (!key) throw new Error('No API key configured. Add your key in Settings > AI.')
 
-  const response = await client.chat.completions.create({
-    model,
-    messages: [{ role: 'user', content: prompt }],
-    temperature: 0.8,
+  // Use saved model from settings, fallback to gpt-oss-20b
+  const savedModel = localStorage.getItem('clipflow-ai-model') || 'openai/gpt-oss-20b'
+  const selectedModel = model || savedModel
+
+  const response = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ key, topic, platform, contentType, tone, duration, model: selectedModel }),
   })
 
-  const raw = response.choices[0]?.message?.content ?? ''
-  return parseScriptOutput(raw)
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}))
+    throw new Error(data.error || `Request failed: ${response.status}`)
+  }
+
+  const data = await response.json()
+  return parseScriptOutput(data.raw)
+}
+
+export interface ParsedIdea {
+  title: string
+  hook: string
+  angle: string
+  topic: string
+  trending: boolean
+  viralPotential: 'High' | 'Medium' | 'Low'
+  difficulty: 'Easy' | 'Medium' | 'Hard'
+  raw: string
+}
+
+export function parseIdeasOutput(raw: string): ParsedIdea[] {
+  const ideas: ParsedIdea[] = []
+  if (!raw || !raw.trim()) return ideas
+
+  // Flexible regex - allows numbers, dashes, varying whitespace
+  const blocks = raw.split(/--+/)
+  for (const block of blocks) {
+    const trimmed = block.trim()
+    if (!trimmed) continue
+
+    const ideaMatch = trimmed.match(/IDEA:\s*(.+)/i)
+    const hookMatch = trimmed.match(/HOOK:\s*(.+)/i)
+    const angleMatch = trimmed.match(/ANGLE:\s*(.+)/i)
+    const topicMatch = trimmed.match(/TOPIC:\s*(.+)/i)
+    const trendingMatch = trimmed.match(/TRENDING:\s*(Yes|No)/i)
+    const viralMatch = trimmed.match(/VIRAL[_\s]?POTENTIAL:\s*(High|Medium|Low)/i)
+    const diffMatch = trimmed.match(/DIFFICULTY:\s*(Easy|Medium|Hard)/i)
+
+    if (ideaMatch) {
+      ideas.push({
+        title: ideaMatch[1].trim().replace(/^\d+[\.\)]\s*/, ''),
+        hook: hookMatch ? hookMatch[1].trim() : '',
+        angle: angleMatch ? angleMatch[1].trim() : '',
+        topic: topicMatch ? topicMatch[1].trim() : '',
+        trending: trendingMatch ? trendingMatch[1].toLowerCase() === 'yes' : false,
+        viralPotential: (viralMatch ? viralMatch[1] : 'Medium') as 'High' | 'Medium' | 'Low',
+        difficulty: (diffMatch ? diffMatch[1] : 'Medium') as 'Easy' | 'Medium' | 'Hard',
+        raw: trimmed,
+      })
+    }
+  }
+  return ideas
+}
+
+export async function generateIdeas(
+  niche: string,
+  platform: string,
+  category: string,
+  count = 5,
+  model?: string
+): Promise<ParsedIdea[]> {
+  if (typeof window === 'undefined') throw new Error('Cannot call generateIdeas on server')
+
+  const key = localStorage.getItem('clipflow-openai-key')
+  if (!key) throw new Error('No API key configured. Add your key in Settings > AI.')
+
+  const savedModel = localStorage.getItem('clipflow-ai-model') || 'openai/gpt-oss-20b'
+  const selectedModel = model || savedModel
+
+  const response = await fetch('/api/ideas', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ key, niche, platform, category, count, model: selectedModel }),
+  })
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}))
+    throw new Error(data.error || `Request failed: ${response.status}`)
+  }
+
+  const data = await response.json()
+  return parseIdeasOutput(data.raw)
+}
+
+export interface RepurposeOutput {
+  content: string
+  index: number
+}
+
+export async function repurposeContent(
+  sourceTitle: string,
+  sourceDescription: string,
+  sourcePlatform: string,
+  targetPlatform: string,
+  sourceContent?: string,
+  model?: string
+): Promise<RepurposeOutput[]> {
+  if (typeof window === 'undefined') throw new Error('Cannot call repurposeContent on server')
+
+  const key = localStorage.getItem('clipflow-openai-key')
+  if (!key) throw new Error('No API key configured. Add your key in Settings > AI.')
+
+  const savedModel = localStorage.getItem('clipflow-ai-model') || 'openai/gpt-oss-20b'
+  const selectedModel = model || savedModel
+
+  const response = await fetch('/api/repurpose', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ key, sourceTitle, sourceDescription, sourcePlatform, targetPlatform, sourceContent, model: selectedModel }),
+  })
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}))
+    throw new Error(data.error || `Request failed: ${response.status}`)
+  }
+
+  const data = await response.json()
+  const raw = data.raw as string
+
+  // Parse 3 outputs
+  const outputs: RepurposeOutput[] = []
+  const regex = /OUTPUT_(\d+):\s*\n([\s\S]*?)(?=---|$)/gi
+  let match
+  while ((match = regex.exec(raw)) !== null) {
+    outputs.push({
+      index: parseInt(match[1]),
+      content: match[2].trim(),
+    })
+  }
+  return outputs.sort((a, b) => a.index - b.index)
 }

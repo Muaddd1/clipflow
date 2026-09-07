@@ -6,17 +6,19 @@ import { Button } from '@/components/ui/button'
 import { Select } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/ui/empty-state'
-import { Copy, Lightbulb, FileText, X } from 'lucide-react'
+import { Dialog, DialogHeader, DialogTitle, DialogBody, DialogFooter } from '@/components/ui/dialog'
+import { Sparkles, Copy, Lightbulb, FileText, X, RefreshCw, Check, ExternalLink } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { repurposeContent } from '@/lib/ai'
 import type { Platform } from '@/lib/types'
 
-const platformOptions = [
-  { value: 'youtube', label: 'YouTube' },
+const targetPlatforms = [
   { value: 'tiktok', label: 'TikTok' },
-  { value: 'instagram', label: 'Instagram' },
   { value: 'x', label: 'X (Twitter)' },
+  { value: 'instagram', label: 'Instagram' },
   { value: 'linkedin', label: 'LinkedIn' },
+  { value: 'youtube', label: 'YouTube' },
 ]
 
 type OutputCard = {
@@ -24,85 +26,57 @@ type OutputCard = {
   platform: Platform
   content: string
   label: string
-}
-
-const templateHooks = [
-  "POV: You finally understand why everyone talks about this...",
-  "Nobody is talking about this, but it changed everything for me",
-  "I tried this for 30 days and here's what happened",
-  "The uncomfortable truth about [topic] nobody tells you",
-  "Stop scrolling. This is the only guide you'll need.",
-  "I asked 100 people and 97 said the same thing...",
-  "This feeling when it finally clicks ✨",
-  "Plot twist: it was never about the [topic]",
-  "Ranking these [items] was harder than I thought",
-  "3 things I wish I knew before starting [topic]",
-]
-
-const tiktokConcepts = [
-  "Day in the life of a creator — the unglamorous truth",
-  "Reacting to my old content (cringe warning)",
-  "Things I don't tell brands about my analytics",
-  "POV: Your video goes viral while you're sleeping",
-  "Ranking my videos by how much they actually made",
-]
-
-const xPosts = [
-  "Hot take: consistency beats virality. 100 videos that got 1K views > 1 video that got 1M.",
-  "The creator economy advice I wished I got 3 years ago: start before you're ready.",
-  "Content is just trust in another form. Every post is a deposit or a withdrawal.",
-  "Nobody wants a 'content creator.' They want someone who solves their problem entertainingly.",
-  "The algorithm didn't change. Your content did. Own that.",
-]
-
-const linkedinPosts = [
-  "After 2 years creating content across 4 platforms, here's what actually moves the needle:\n\n1. Ship more, perfect less\n2. Engage before you create\n3. Repurpose everything 5 times\n4. Data > opinions\n\nWhat's your biggest lesson? 👇",
-]
-
-const instagramCaptions = [
-  "The content game is 10% posting and 90% obsessing over why nobody's engaging. DM me your biggest struggle 👇",
-  "Create content that makes people feel something. That's the whole game. 🎯",
-  "Your first 100 videos will be bad. Your next 100 will be better. Just start. ✨",
-  "Consistency is the only hack that actually works. No viral secret. Just showing up. 💪",
-  "If your content isn't embarrassing you, you're not being honest enough. 🙃",
-]
-
-function generateOutputs(sourceTitle: string, platform: Platform): OutputCard[] {
-  const outputs: OutputCard[] = []
-  if (platform === 'youtube' || platform === 'tiktok') {
-    tiktokConcepts.forEach((c, i) => outputs.push({ id: `tt-${i}`, platform: 'tiktok', content: c, label: `TikTok #${i + 1}` }))
-    xPosts.slice(0, 3).forEach((c, i) => outputs.push({ id: `x-${i}`, platform: 'x', content: c, label: `X Post #${i + 1}` }))
-  }
-  if (platform === 'x') {
-    templateHooks.forEach((h, i) => outputs.push({ id: `hook-${i}`, platform: 'x', content: h, label: `Hook #${i + 1}` }))
-  }
-  if (platform === 'linkedin') {
-    linkedinPosts.forEach((c, i) => outputs.push({ id: `li-${i}`, platform: 'linkedin', content: c, label: `LinkedIn #${i + 1}` }))
-  }
-  if (platform === 'instagram') {
-    instagramCaptions.forEach((c, i) => outputs.push({ id: `ig-${i}`, platform: 'instagram', content: c, label: `Caption #${i + 1}` }))
-  }
-  // Universal outputs
-  xPosts.slice(0, 2).forEach((c, i) => outputs.push({ id: `ux-${i}`, platform: 'x', content: c, label: `X Post #${i + 1}` }))
-  templateHooks.slice(0, 5).forEach((h, i) => outputs.push({ id: `uh-${i}`, platform: 'x', content: h, label: `Short Hook #${i + 1}` }))
-  return outputs
+  loading?: boolean
 }
 
 export default function RepurposePage() {
   const { data } = useData()
   const [sourceId, setSourceId] = useState('')
+  const [targetPlatform, setTargetPlatform] = useState<Platform>('tiktok')
   const [outputs, setOutputs] = useState<OutputCard[]>([])
   const [copied, setCopied] = useState<string | null>(null)
+  const [generating, setGenerating] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const hasApiKey = typeof window !== 'undefined' && !!localStorage.getItem('clipflow-openai-key')
 
   const sourceContent = data.content.find(c => c.id === sourceId)
+  const sourceScripts = sourceId ? data.scripts.filter(s => s.contentId === sourceId) : []
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!sourceId) { toast.error('Select a piece of content first'); return }
+    if (!hasApiKey) { toast.error('Add your API key in Settings first'); return }
     const content = data.content.find(c => c.id === sourceId)
     if (!content) return
-    const generated = generateOutputs(content.title, content.platform as Platform)
-    setOutputs(generated)
-    toast.success(`Generated ${generated.length} repurposed outputs`)
+
+    setGenerating(true)
+    setError(null)
+    setOutputs([])
+
+    try {
+      const script = sourceScripts[0]
+      const results = await repurposeContent(
+        content.title,
+        content.description || '',
+        content.platform,
+        targetPlatform,
+        script ? `${script.introduction}\n\n${script.body}` : undefined
+      )
+
+      const newOutputs: OutputCard[] = results.map((r, i) => ({
+        id: `${targetPlatform}-${Date.now()}-${i}`,
+        platform: targetPlatform as Platform,
+        content: r.content,
+        label: `Variation ${i + 1}`,
+      }))
+
+      setOutputs(newOutputs)
+      toast.success(`Generated ${newOutputs.length} AI repurposed outputs`)
+    } catch (err: any) {
+      setError(err.message || 'Generation failed')
+      toast.error(err.message || 'Generation failed')
+    } finally {
+      setGenerating(false)
+    }
   }
 
   const handleCopy = (id: string, text: string) => {
@@ -114,6 +88,40 @@ export default function RepurposePage() {
 
   const handleUpdate = (id: string, text: string) => {
     setOutputs(prev => prev.map(o => o.id === id ? { ...o, content: text } : o))
+  }
+
+  const handleGenerateMore = async () => {
+    if (!sourceId || !hasApiKey) return
+    const content = data.content.find(c => c.id === sourceId)
+    if (!content) return
+
+    setGenerating(true)
+    setError(null)
+
+    try {
+      const script = sourceScripts[0]
+      const results = await repurposeContent(
+        content.title,
+        content.description || '',
+        content.platform,
+        targetPlatform,
+        script ? `${script.introduction}\n\n${script.body}` : undefined
+      )
+
+      const newOutputs: OutputCard[] = results.map((r, i) => ({
+        id: `${targetPlatform}-${Date.now()}-${i}-more`,
+        platform: targetPlatform as Platform,
+        content: r.content,
+        label: `Variation ${outputs.length + i + 1}`,
+      }))
+
+      setOutputs(prev => [...prev, ...newOutputs])
+      toast.success(`Generated ${newOutputs.length} more outputs`)
+    } catch (err: any) {
+      toast.error(err.message || 'Generation failed')
+    } finally {
+      setGenerating(false)
+    }
   }
 
   const iconForPlatform = (p: Platform) => {
@@ -137,7 +145,7 @@ export default function RepurposePage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-white">Repurpose</h1>
-        <p className="text-white/40 text-sm mt-0.5">Turn one piece of content into many across platforms</p>
+        <p className="text-white/40 text-sm mt-0.5">Turn one piece of content into many using AI</p>
       </div>
 
       {/* Source selector */}
@@ -153,25 +161,62 @@ export default function RepurposePage() {
               id="repurpose-source"
             />
           </div>
-          <Button variant="primary" onClick={handleGenerate}><Lightbulb size={14} />Generate Outputs</Button>
+          <div className="w-48">
+            <Select
+              label="Adapt for"
+              value={targetPlatform}
+              onValueChange={v => { setTargetPlatform(v as Platform); setOutputs([]) }}
+              options={targetPlatforms}
+              id="repurpose-target"
+            />
+          </div>
+          <Button
+            variant="primary"
+            onClick={handleGenerate}
+            disabled={!sourceId || !hasApiKey || generating}
+          >
+            {generating ? (
+              <><div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />Generating...</>
+            ) : (
+              <><Sparkles size={14} />AI Repurpose</>
+            )}
+          </Button>
         </div>
+
+        {!hasApiKey && (
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/5 border border-amber-500/10">
+            <Sparkles size={14} className="text-amber-400" />
+            <p className="text-xs text-amber-400/80">Add your Groq API key in Settings to enable AI repurposing.</p>
+            <Button variant="secondary" size="sm" onClick={() => window.location.href = '/settings'} className="ml-auto">Go to Settings</Button>
+          </div>
+        )}
+
         {sourceContent && (
           <div className="flex items-center gap-2 p-3 rounded-lg bg-white/[0.02] border border-white/[0.04]">
             <Badge variant="platform" platform={sourceContent.platform as Platform} />
             <p className="text-sm text-white/60">{sourceContent.title}</p>
-            <span className="text-xs text-white/20 ml-auto">{sourceContent.status}</span>
+            <span className="text-xs text-white/20 ml-auto capitalize">{sourceContent.status}</span>
           </div>
         )}
       </div>
 
       {/* Outputs */}
-      {outputs.length === 0 ? (
+      {outputs.length === 0 && !generating && !error && (
         <EmptyState
           icon={<FileText size={24} />}
           title="No outputs yet"
-          description="Select a piece of content and click Generate to create repurposed outputs for other platforms."
+          description="Select content and click AI Repurpose to generate platform-native variations using AI."
         />
-      ) : (
+      )}
+
+      {error && (
+        <div className="rounded-xl border border-red-500/10 bg-red-500/5 p-5 text-center">
+          <p className="text-sm text-red-400 mb-3">{error}</p>
+          <Button variant="secondary" size="sm" onClick={() => setError(null)}>Dismiss</Button>
+        </div>
+      )}
+
+      {outputs.length > 0 && (
         <div className="space-y-6">
           {Object.entries(grouped).map(([platform, cards]) => (
             <div key={platform}>
@@ -179,6 +224,11 @@ export default function RepurposePage() {
                 {iconForPlatform(platform as Platform)}
                 <h3 className="text-sm font-semibold text-white/70 capitalize">{platform}</h3>
                 <span className="text-xs text-white/20">{cards.length} outputs</span>
+                <div className="ml-auto">
+                  <Button variant="secondary" size="sm" onClick={handleGenerateMore} disabled={generating}>
+                    <RefreshCw size={12} className={generating ? 'animate-spin' : ''} /> More
+                  </Button>
+                </div>
               </div>
               <div className="grid md:grid-cols-2 gap-3">
                 {cards.map(card => (
@@ -187,13 +237,13 @@ export default function RepurposePage() {
                       <span className="text-[10px] font-mono text-white/25 uppercase">{card.label}</span>
                       <button onClick={() => handleCopy(card.id, card.content)}
                         className={cn('text-xs px-2.5 py-1 rounded-md transition-all', copied === card.id ? 'bg-emerald-500/10 text-emerald-400' : 'bg-white/[0.04] text-white/40 hover:text-white/70')}>
-                        {copied === card.id ? 'Copied!' : <><Copy size={10} className="inline mr-1" />Copy</>}
+                        {copied === card.id ? <><Check size={10} className="inline mr-1" />Copied</> : <><Copy size={10} className="inline mr-1" />Copy</>}
                       </button>
                     </div>
                     <textarea
                       value={card.content}
                       onChange={e => handleUpdate(card.id, e.target.value)}
-                      rows={3}
+                      rows={4}
                       className="w-full bg-transparent text-sm text-white/70 placeholder:text-white/15 outline-none resize-none leading-relaxed"
                     />
                   </div>

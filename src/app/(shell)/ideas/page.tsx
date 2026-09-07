@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useData } from '@/lib/data-context'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -11,9 +12,10 @@ import { Select } from '@/components/ui/select'
 import { Dialog, DialogHeader, DialogTitle, DialogBody, DialogFooter } from '@/components/ui/dialog'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
-import { Lightbulb, Plus, Trash2, Filter, Zap } from 'lucide-react'
+import { Lightbulb, Plus, Trash2, Filter, Zap, Sparkles, ArrowRight, PenTool } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import { cn } from '@/lib/utils'
+import { AiIdeaGenerator } from '@/components/ai-idea-generator'
 import type { Idea, IdeaStatus, Platform, Priority } from '@/lib/types'
 import { toast } from 'sonner'
 
@@ -34,6 +36,12 @@ const priorityOptions = [
   { value: 'high', label: 'High' },
 ]
 
+function getAllIdeaTags(data: any): string[] {
+  const tags = new Set<string>()
+  data.ideas.forEach((i: any) => i.tags?.forEach((t: string) => tags.add(t)))
+  return Array.from(tags).sort()
+}
+
 const platformOptions = [
   { value: 'youtube', label: 'YouTube' },
   { value: 'tiktok', label: 'TikTok' },
@@ -48,25 +56,30 @@ const defaultForm = {
 }
 
 export default function IdeasPage() {
-  const { data, addIdea, updateIdea, deleteIdea } = useData()
+  const { data, addIdea, updateIdea, deleteIdea, addContent, addScript } = useData()
+  const router = useRouter()
   const searchParams = useSearchParams()
   const showNew = searchParams.get('new') === 'true'
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [priorityFilter, setPriorityFilter] = useState('')
+  const [tagFilter, setTagFilter] = useState('')
   const [view, setView] = useState<'grid' | 'list'>('grid')
   const [dialogOpen, setDialogOpen] = useState(showNew)
+  const [aiOpen, setAiOpen] = useState(false)
   const [detailId, setDetailId] = useState<string | null>(null)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [form, setForm] = useState(defaultForm)
 
   const detail = detailId ? data.ideas.find(i => i.id === detailId) : null
+  const allTags = getAllIdeaTags(data)
 
   const filtered = data.ideas.filter(i => {
     if (search && !i.title.toLowerCase().includes(search.toLowerCase())) return false
     if (statusFilter && i.status !== statusFilter) return false
     if (priorityFilter && i.priority !== priorityFilter) return false
+    if (tagFilter && !i.tags?.includes(tagFilter)) return false
     return true
   })
 
@@ -80,6 +93,51 @@ export default function IdeasPage() {
 
   const handleDelete = () => {
     if (deleteId) { deleteIdea(deleteId); toast.success('Idea deleted'); setDeleteId(null) }
+  }
+
+  const handleSaveAiIdeas = (ideas: any[]) => {
+    ideas.forEach(idea => addIdea(idea))
+    setAiOpen(false)
+  }
+
+  const handleIdeaToScript = (idea: any) => {
+    addScript({
+      title: idea.title,
+      hook: idea.hook || '',
+      introduction: '',
+      body: idea.description || '',
+      examples: '',
+      cta: '',
+      notes: `Created from idea: ${idea.title}`,
+      wordCount: idea.description ? idea.description.split(/\s+/).filter(Boolean).length : 0,
+      charCount: idea.description ? idea.description.length : 0,
+    })
+    updateIdea(idea.id, { status: 'ready_to_script' })
+    toast.success('Script created!')
+    router.push('/scripts')
+  }
+
+  const handleDevelopIntoContent = (idea: any) => {
+    // Update idea status to "developing"
+    updateIdea(idea.id, { status: 'developing' })
+    // Create content pre-filled from idea
+    addContent({
+      title: idea.title,
+      description: idea.description || idea.hook || '',
+      platform: idea.platform,
+      status: 'idea',
+      thumbnail: '',
+      tags: idea.tags || [],
+      views: 0,
+      likes: 0,
+      comments: 0,
+      shares: 0,
+      engagementRate: 0,
+      revenue: 0,
+    })
+    toast.success('Content created from idea!')
+    setDetailId(null)
+    router.push('/content')
   }
 
   const ViralBar = ({ score }: { score: number }) => (
@@ -106,6 +164,9 @@ export default function IdeasPage() {
         <Button variant="primary" onClick={() => setDialogOpen(true)}>
           <Plus size={14} />New Idea
         </Button>
+        <Button variant="secondary" onClick={() => setAiOpen(true)}>
+          <Sparkles size={14} />AI Generate
+        </Button>
       </div>
 
       {/* Filters */}
@@ -116,6 +177,16 @@ export default function IdeasPage() {
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter} options={statusOptions} placeholder="Status" className="w-40" id="status-filter" />
         <Select value={priorityFilter} onValueChange={setPriorityFilter} options={[{value:'',label:'All Priority'},{value:'high',label:'High'},{value:'medium',label:'Medium'},{value:'low',label:'Low'}]} placeholder="Priority" className="w-32" id="priority-filter" />
+        {allTags.length > 0 && (
+          <Select
+            value={tagFilter}
+            onValueChange={setTagFilter}
+            options={[{ value: '', label: 'All Tags' }, ...allTags.map(t => ({ value: t, label: t }))]}
+            placeholder="Tag"
+            className="w-36"
+            id="idea-tag-filter"
+          />
+        )}
         <div className="flex items-center gap-1 bg-white/[0.03] border border-white/[0.06] rounded-lg p-1">
           {[['grid','Grid'],['list','List']].map(([v,label]) => (
             <button key={v} onClick={() => setView(v as any)} className={cn('px-3 py-1.5 rounded-md text-xs font-medium transition-colors', view === v ? 'bg-white/[0.06] text-white' : 'text-white/30 hover:text-white/60')}>{label}</button>
@@ -183,9 +254,15 @@ export default function IdeasPage() {
             {detail.description && <p className="text-sm text-white/50">{detail.description}</p>}
             <div className="flex flex-wrap gap-2"><Badge variant="platform" platform={detail.platform} /><Badge variant="status" status={detail.status} /><Badge variant="priority" priority={detail.priority} /></div>
             {detail.notes && <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.04]"><p className="text-xs text-white/30 mb-1">Notes</p><p className="text-sm text-white/60">{detail.notes}</p></div>}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
+              <Button variant="secondary" size="sm" onClick={() => handleIdeaToScript(detail)}>
+                <PenTool size={14} />Write Script
+              </Button>
+              <Button variant="primary" size="sm" onClick={() => handleDevelopIntoContent(detail)}>
+                <ArrowRight size={14} />Develop
+              </Button>
               <span className="text-xs text-white/20">Created {formatDate(detail.createdAt)}</span>
-              <Button variant="destructive" size="sm" onClick={() => { setDeleteId(detail.id); setDetailId(null) }}><Trash2 size={14} />Delete</Button>
+              <Button variant="destructive" size="sm" onClick={() => { setDeleteId(detail.id); setDetailId(null) }}><Trash2 size={14} /></Button>
             </div>
           </DialogBody>
         </Dialog>
@@ -220,6 +297,8 @@ export default function IdeasPage() {
       </Dialog>
 
       <ConfirmDialog open={!!deleteId} onOpenChange={v => !v && setDeleteId(null)} title="Delete idea?" description="This will permanently delete this idea." confirmLabel="Delete" destructive onConfirm={handleDelete} />
+
+      <AiIdeaGenerator open={aiOpen} onOpenChange={setAiOpen} onSaveIdeas={handleSaveAiIdeas} />
     </div>
   )
 }

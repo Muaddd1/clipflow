@@ -11,7 +11,7 @@ interface ConfirmDialogProps {
   description: string
   confirmLabel?: string
   cancelLabel?: string
-  onConfirm: () => void
+  onConfirm: () => void | Promise<void>
   destructive?: boolean
 }
 
@@ -30,9 +30,13 @@ export function ConfirmDialog({
   const handleConfirm = async () => {
     setLoading(true)
     try {
-      onConfirm()
-      onOpenChange(false)
+      const result = onConfirm()
+      // If onConfirm returns a promise, wait for it
+      if (result instanceof Promise) {
+        await result
+      }
     } finally {
+      onOpenChange(false)
       setLoading(false)
     }
   }

@@ -79,6 +79,174 @@
   }
 }
 
+/* Light theme overrides - applied via .light-theme class on root div */
+.light-theme {
+  --color-surface: #ffffff;
+  --color-surface-raised: #f4f4f5;
+  --color-surface-overlay: #fafafa;
+  --color-border: rgba(0, 0, 0, 0.08);
+  --color-border-hover: rgba(0, 0, 0, 0.15);
+  --color-muted: rgba(0, 0, 0, 0.4);
+  --color-muted-foreground: rgba(0, 0, 0, 0.5);
+  --color-foreground: #09090b;
+  --color-card: #ffffff;
+  --color-background: #f4f4f5;
+  background-color: #f4f4f5 !important;
+  color: #09090b !important;
+}
+
+/* Override hardcoded dark backgrounds - high specificity via .light-theme parent */
+.light-theme .bg-background,
+.light-theme [class*="bg-zinc-900"],
+.light-theme [class*="bg-zinc-950"],
+.light-theme [class*="bg-neutral-900"],
+.light-theme [class*="bg-neutral-950"],
+.light-theme [class*="bg-black"],
+.light-theme [class*="bg-gray-900"],
+.light-theme [class*="bg-gray-950"] {
+  background-color: #ffffff !important;
+}
+
+.light-theme [class*="bg-zinc-800"],
+.light-theme [class*="bg-neutral-800"],
+.light-theme [class*="bg-gray-800"] {
+  background-color: #f4f4f5 !important;
+}
+
+.light-theme [class*="bg-zinc-700"],
+.light-theme [class*="bg-neutral-700"],
+.light-theme [class*="bg-gray-700"] {
+  background-color: #e4e4e7 !important;
+}
+
+/* Surface tokens */
+.light-theme .bg-surface { background-color: #ffffff !important; }
+.light-theme .bg-surface-raised { background-color: #f4f4f5 !important; }
+.light-theme .bg-surface-overlay { background-color: #fafafa !important; }
+
+/* Override dark borders */
+.light-theme [class*="border-white"],
+.light-theme [class*="border-zinc"],
+.light-theme [class*="border-neutral"],
+.light-theme [class*="border-gray"],
+.light-theme [class*="border-black/"] {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Override text colors */
+.light-theme [class*="text-white"],
+.light-theme [class*="text-zinc-"],
+.light-theme [class*="text-neutral-"],
+.light-theme [class*="text-gray-"] {
+  color: #09090b !important;
+}
+
+/* Muted/secondary text should stay muted */
+.light-theme .text-white\/30,
+.light-theme .text-white\/40,
+.light-theme .text-white\/50,
+.light-theme .text-white\/60,
+.light-theme .text-white\/70,
+.light-theme .text-white\/80,
+.light-theme [class*="text-white/"] {
+  color: rgba(0, 0, 0, 0.45) !important;
+}
+
+/* Primary violet text should stay violet */
+.light-theme .text-violet,
+.light-theme .text-violet-light {
+  color: #7C3AED !important;
+}
+
+/* Success/Warning colors */
+.light-theme .text-emerald,
+.light-theme .text-emerald-400,
+.light-theme .text-emerald-500 {
+  color: #22c55e !important;
+}
+.light-theme .text-amber,
+.light-theme .text-yellow-500 {
+  color: #f59e0b !important;
+}
+
+/* Override bg overlays */
+.light-theme [class*="bg-black/"],
+.light-theme [class*="bg-white/[0"],
+.light-theme [class*="bg-white/0"],
+.light-theme [class*="bg-white\/"],
+.light-theme .bg-black\/30,
+.light-theme .bg-black\/40,
+.light-theme .bg-black\/50,
+.light-theme .bg-black\/60 {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Backdrop blur overlays */
+.light-theme .backdrop-blur-md,
+.light-theme .backdrop-blur-sm {
+  backdrop-filter: blur(8px) !important;
+  background-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Main content area */
+.light-theme main {
+  background-color: #f4f4f5 !important;
+}
+
+/* Cards and panels - override hardcoded dark rounded elements */
+.light-theme .card,
+.light-theme [class*="rounded-xl"],
+.light-theme [class*="rounded-lg"],
+.light-theme [class*="rounded-2xl"] {
+  background-color: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Scrollbars */
+.light-theme ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15) !important;
+}
+.light-theme ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Sidebar */
+.light-theme nav,
+.light-theme header {
+  background-color: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Inputs */
+.light-theme input,
+.light-theme textarea,
+.light-theme select {
+  background-color: #ffffff !important;
+  color: #09090b !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* kbd elements */
+.light-theme kbd {
+  background-color: #f4f4f5 !important;
+  color: #09090b !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Progress bars */
+.light-theme progress,
+.light-theme [class*="bg-emerald"],
+.light-theme [class*="bg-violet"] {
+  background-color: #7C3AED !important;
+}
+
+/* Shadows in light mode */
+.light-theme [class*="shadow-xl"],
+.light-theme [class*="shadow-2xl"],
+.light-theme [class*="shadow-lg"] {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
 /* Container */
 .container-wide {
   width: 100%;

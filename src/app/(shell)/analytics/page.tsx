@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useData } from '@/lib/data-context'
 import { Badge } from '@/components/ui/badge'
-import { Eye, TrendingUp, Users, DollarSign } from 'lucide-react'
-import { formatNumber } from '@/lib/utils'
+import { Eye, TrendingUp, Users, DollarSign, TrendingDown, BarChart2, ThumbsUp, Calendar } from 'lucide-react'
+import { formatNumber, formatDate } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 
 const periods = [
@@ -189,6 +189,75 @@ export default function AnalyticsPage() {
             )
           })}
         </div>
+      </div>
+
+      {/* Real Content Performance */}
+      <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <BarChart2 size={14} className="text-violet" />
+          <h3 className="text-sm font-semibold text-white/70">Content Performance</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-white/[0.04]">
+                <th className="text-left py-2 px-3 text-[10px] font-mono text-white/20 uppercase">#</th>
+                <th className="text-left py-2 px-3 text-[10px] font-mono text-white/20 uppercase">Content</th>
+                <th className="py-2 px-3 text-[10px] font-mono text-white/20 uppercase">Platform</th>
+                <th className="py-2 px-3 text-[10px] font-mono text-white/20 uppercase">Status</th>
+                <th className="py-2 px-3 text-[10px] font-mono text-white/20 uppercase text-right">Views</th>
+                <th className="py-2 px-3 text-[10px] font-mono text-white/20 uppercase text-right">Likes</th>
+                <th className="py-2 px-3 text-[10px] font-mono text-white/20 uppercase text-right">Eng%</th>
+                <th className="py-2 px-3 text-[10px] font-mono text-white/20 uppercase text-right">Updated</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...data.content]
+                .filter(c => c.views > 0 || c.status === 'published')
+                .sort((a, b) => b.views - a.views)
+                .slice(0, 10)
+                .map((c, i) => (
+                <tr key={c.id} className="border-b border-white/[0.03] hover:bg-white/[0.02]">
+                  <td className="py-2.5 px-3 text-xs text-white/20">{i + 1}</td>
+                  <td className="py-2.5 px-3"><p className="text-sm text-white/70 truncate max-w-xs">{c.title}</p></td>
+                  <td className="py-2.5 px-3"><Badge variant="platform" platform={c.platform} /></td>
+                  <td className="py-2.5 px-3"><Badge variant="status" status={c.status} /></td>
+                  <td className="py-2.5 px-3 text-right font-mono text-sm text-white/60">{formatNumber(c.views)}</td>
+                  <td className="py-2.5 px-3 text-right font-mono text-sm text-white/60">{formatNumber(c.likes)}</td>
+                  <td className="py-2.5 px-3 text-right">
+                    <span className={cn(
+                      'text-xs font-mono',
+                      c.engagementRate >= 5 ? 'text-green-400' : c.engagementRate >= 2 ? 'text-amber-400' : 'text-white/30'
+                    )}>
+                      {c.engagementRate > 0 ? `${c.engagementRate}%` : '—'}
+                    </span>
+                  </td>
+                  <td className="py-2.5 px-3 text-right text-xs text-white/20">{formatDate(c.updatedAt)}</td>
+                </tr>
+              ))}
+              {data.content.filter(c => c.views > 0).length === 0 && (
+                <tr><td colSpan={8} className="py-8 text-center text-sm text-white/30">No performance data yet — publish some content!</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Content by status */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+        {(['idea','developing','ready_to_script','recording','editing','scheduled','published'] as const).map(status => {
+          const count = data.content.filter(c => c.status === status).length
+          const pct = data.content.length > 0 ? Math.round((count / data.content.length) * 100) : 0
+          return (
+            <div key={status} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+              <p className="text-2xl font-bold text-white mb-1">{count}</p>
+              <p className="text-xs text-white/30 capitalize mb-2">{status.replace('_', ' ')}</p>
+              <div className="w-full h-1 bg-white/[0.04] rounded-full overflow-hidden">
+                <div className="h-full bg-violet rounded-full" style={{ width: `${pct}%` }} />
+              </div>
+            </div>
+          )
+        })}
       </div>
     </div>
   )

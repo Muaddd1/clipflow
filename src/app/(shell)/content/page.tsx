@@ -13,8 +13,10 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import {
   Plus, Search, Filter, FileVideo, ExternalLink,
-  Trash2, Edit, ThumbsUp, MessageCircle, Share2, Eye,
+  Trash2, Edit, ThumbsUp, MessageCircle, Share2, Eye, Wand2,
 } from 'lucide-react'
+import { ThumbnailUpload } from '@/components/thumbnail-upload'
+import { ThumbnailGenerator } from '@/components/thumbnail-generator'
 import { formatNumber, formatDate, statusLabel, platformLabel } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 import type { Content, ContentStatus, Platform } from '@/lib/types'
@@ -40,17 +42,29 @@ const platformOptions = [
   { value: 'linkedin', label: 'LinkedIn' },
 ]
 
-function ContentRow({ content, onDelete }: { content: Content; onDelete: (id: string) => void }) {
+// Collect all unique tags from content
+function getAllContentTags(data: any): string[] {
+  const tags = new Set<string>()
+  data.content.forEach((c: any) => c.tags?.forEach((t: string) => tags.add(t)))
+  return Array.from(tags).sort()
+}
+
+function ContentRow({ content, onDelete, selected, onToggle }: { content: Content; onDelete: (id: string) => void; selected: boolean; onToggle: (id: string) => void }) {
   const [showDelete, setShowDelete] = useState(false)
 
   return (
     <>
-      <Link
-        href={`/content/${content.id}`}
-        className="grid grid-cols-1 sm:grid-cols-[1fr_auto_auto] lg:grid-cols-[1fr_auto_auto_auto_auto] items-start sm:items-center gap-2 sm:gap-4 py-4 border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors px-4 -mx-4"
-      >
+      <div className="grid grid-cols-[auto_1fr_auto_auto_auto_auto] items-center gap-2 sm:gap-4 py-3 border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors px-4 -mx-4">
+        {/* Checkbox */}
+        <input
+          type="checkbox"
+          checked={selected}
+          onChange={() => onToggle(content.id)}
+          onClick={e => e.stopPropagation()}
+          className="w-3.5 h-3.5 accent-violet cursor-pointer shrink-0"
+        />
         {/* Info */}
-        <div className="flex items-center gap-3 min-w-0">
+        <Link href={`/content/${content.id}`} className="flex items-center gap-3 min-w-0">
           {content.thumbnail && (
             <img src={content.thumbnail} alt="" className="w-14 h-9 rounded-lg object-cover flex-shrink-0 hidden sm:block" />
           )}
@@ -69,20 +83,25 @@ function ContentRow({ content, onDelete }: { content: Content; onDelete: (id: st
               {content.status === 'published' && content.publishedAt ? formatDate(content.publishedAt) : content.scheduledAt ? `Scheduled ${formatDate(content.scheduledAt)}` : formatDate(content.createdAt)}
             </p>
           </div>
-        </div>
+        </Link>
+
+        {/* Platform */}
+        <div className="hidden sm:block"><Badge variant="platform" platform={content.platform} /></div>
+
+        {/* Status */}
+        <div className="hidden sm:block"><Badge variant="status" status={content.status} /></div>
 
         {/* Stats - hidden on mobile */}
-        <div className="hidden sm:flex items-center gap-4 text-xs text-white/30">
+        <div className="hidden lg:flex items-center gap-3 text-xs text-white/30">
           <span className="flex items-center gap-1"><Eye size={12} />{formatNumber(content.views)}</span>
           <span className="flex items-center gap-1"><ThumbsUp size={12} />{formatNumber(content.likes)}</span>
-          <span className="hidden lg:flex items-center gap-1"><MessageCircle size={12} />{formatNumber(content.comments)}</span>
         </div>
 
         {/* Engagement - hidden on mobile */}
         <div className="hidden sm:block text-right">
           <p className="text-sm font-mono text-white/60">{content.engagementRate > 0 ? `${content.engagementRate}%` : '—'}</p>
         </div>
-      </Link>
+      </div>
 
       <ConfirmDialog
         open={showDelete}
@@ -98,7 +117,7 @@ function ContentRow({ content, onDelete }: { content: Content; onDelete: (id: st
 }
 
 export default function ContentPage() {
-  const { data, addContent, deleteContent } = useData()
+  const { data, addContent, deleteContent, deleteManyContent, updateManyContent, updateContent } = useData()
   const router = useRouter()
   const searchParams = useSearchParams()
   const showNew = searchParams.get('new') === 'true'
@@ -106,20 +125,52 @@ export default function ContentPage() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [platformFilter, setPlatformFilter] = useState('')
+  const [tagFilter, setTagFilter] = useState('')
   const [showNewDialog, setShowNewDialog] = useState(showNew)
   const [newForm, setNewForm] = useState({
     title: '',
     description: '',
     platform: 'youtube' as Platform,
     status: 'idea' as ContentStatus,
+    thumbnail: '',
   })
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [bulkOpen, setBulkOpen] = useState(false)
+  const [bulkStatus, setBulkStatus] = useState<ContentStatus>('idea')
+  const [generateOpen, setGenerateOpen] = useState(false)
+
+  const allTags = getAllContentTags(data)
 
   const filtered = data.content.filter(c => {
     if (search && !c.title.toLowerCase().includes(search.toLowerCase())) return false
     if (statusFilter && c.status !== statusFilter) return false
     if (platformFilter && c.platform !== platformFilter) return false
+    if (tagFilter && !c.tags?.includes(tagFilter)) return false
     return true
   })
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+  }
+  const toggleAll = () => {
+    if (selectedIds.length === filtered.length) {
+      setSelectedIds([])
+    } else {
+      setSelectedIds(filtered.map(c => c.id))
+    }
+  }
+  const handleBulkDelete = () => {
+    deleteManyContent(selectedIds)
+    toast.success(`${selectedIds.length} items deleted`)
+    setSelectedIds([])
+    setBulkOpen(false)
+  }
+  const handleBulkStatus = () => {
+    selectedIds.forEach(id => updateContent(id, { status: bulkStatus }))
+    toast.success(`${selectedIds.length} items updated`)
+    setSelectedIds([])
+    setBulkOpen(false)
+  }
 
   const handleAdd = () => {
     if (!newForm.title.trim()) {
@@ -138,7 +189,7 @@ export default function ContentPage() {
     })
     toast.success('Content created')
     setShowNewDialog(false)
-    setNewForm({ title: '', description: '', platform: 'youtube', status: 'idea' })
+    setNewForm({ title: '', description: '', platform: 'youtube', status: 'idea', thumbnail: '' })
   }
 
   const handleDelete = (id: string) => {
@@ -187,12 +238,41 @@ export default function ContentPage() {
           className="w-36"
           id="platform-filter"
         />
+        {allTags.length > 0 && (
+          <Select
+            value={tagFilter}
+            onValueChange={setTagFilter}
+            options={[{ value: '', label: 'All Tags' }, ...allTags.map(t => ({ value: t, label: t }))]}
+            placeholder="Tag"
+            className="w-36"
+            id="tag-filter"
+          />
+        )}
       </div>
 
       {/* Table */}
       <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] overflow-hidden">
+        {/* Bulk action bar */}
+        {selectedIds.length > 0 && (
+          <div className="flex items-center gap-3 px-4 py-3 bg-violet/10 border-b border-white/[0.04]">
+            <span className="text-sm text-violet font-medium">{selectedIds.length} selected</span>
+            <button onClick={() => setSelectedIds([])} className="text-white/30 hover:text-white text-xs">Clear</button>
+            <div className="flex items-center gap-2 ml-auto">
+              <select
+                value={bulkStatus}
+                onChange={e => setBulkStatus(e.target.value as ContentStatus)}
+                className="bg-white/[0.06] border border-white/[0.08] rounded px-2 py-1 text-xs text-white outline-none"
+              >
+                {statusOptions.slice(1).map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+              <Button variant="secondary" size="sm" onClick={handleBulkStatus}>Apply Status</Button>
+              <Button variant="destructive" size="sm" onClick={handleBulkDelete}>Delete</Button>
+            </div>
+          </div>
+        )}
         {/* Table header */}
-        <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-4 py-3 border-b border-white/[0.04] text-[10px] font-mono text-white/20 uppercase tracking-wider">
+        <div className="grid grid-cols-[auto_1fr_auto_auto_auto_auto] gap-4 px-4 py-3 border-b border-white/[0.04] text-[10px] font-mono text-white/20 uppercase tracking-wider">
+          <span><input type="checkbox" checked={selectedIds.length === filtered.length && filtered.length > 0} onChange={toggleAll} className="w-3.5 h-3.5 accent-violet cursor-pointer" /></span>
           <span>Content</span>
           <span>Platform</span>
           <span>Status</span>
@@ -203,7 +283,7 @@ export default function ContentPage() {
         {filtered.length > 0 ? (
           <div className="px-4 pb-4">
             {filtered.map(content => (
-              <ContentRow key={content.id} content={content} onDelete={handleDelete} />
+              <ContentRow key={content.id} content={content} onDelete={handleDelete} selected={selectedIds.includes(content.id)} onToggle={toggleSelect} />
             ))}
             {/* Bottom safe area for mobile nav */}
             <div className="h-16 sm:h-0" />
@@ -251,6 +331,21 @@ export default function ContentPage() {
               id="new-status"
             />
           </div>
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-mono text-white/40 uppercase tracking-wider">Thumbnail</label>
+              <button
+                onClick={() => setGenerateOpen(true)}
+                className="text-xs text-violet hover:text-violet/80 flex items-center gap-1 transition-colors"
+              >
+                <Wand2 size={11} /> Generate with AI
+              </button>
+            </div>
+            <ThumbnailUpload
+              value={newForm.thumbnail}
+              onChange={dataUrl => setNewForm(p => ({ ...p, thumbnail: dataUrl || '' }))}
+            />
+          </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-mono text-white/40 uppercase tracking-wider">Description</label>
             <textarea
@@ -267,6 +362,18 @@ export default function ContentPage() {
           <Button variant="primary" onClick={handleAdd}>Create Content</Button>
         </DialogFooter>
       </Dialog>
+
+      <ThumbnailGenerator
+        open={generateOpen}
+        onOpenChange={setGenerateOpen}
+        contentTitle={newForm.title}
+        contentHook={newForm.description}
+        platform={newForm.platform}
+        onAccept={(dataUrl) => {
+          setNewForm(p => ({ ...p, thumbnail: dataUrl }))
+          toast.success('Thumbnail generated!')
+        }}
+      />
     </div>
   )
 }

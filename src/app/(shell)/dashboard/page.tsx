@@ -8,14 +8,14 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import {
   Eye, Heart, Users, FileVideo, Calendar, DollarSign,
-  Plus, Lightbulb, PenTool, Handshake, ArrowRight,
+  Plus, Lightbulb, PenTool, Handshake, ArrowRight, Target,
 } from 'lucide-react'
 import Link from 'next/link'
 import { formatNumber, formatDate, formatRelativeDate } from '@/lib/utils'
 import { platformColor } from '@/lib/utils'
 
 export default function DashboardPage() {
-  const { data } = useData()
+  const { data, updateSettings } = useData()
 
   // Stats
   const totalViews = data.content.reduce((s, c) => s + c.views, 0)
@@ -107,6 +107,57 @@ export default function DashboardPage() {
         <MetricCard label="Scheduled" value={scheduledCount} sublabel="upcoming" />
         <MetricCard label="Revenue" value={`$${formatNumber(totalRevenue)}`} sublabel="from sponsors" />
       </div>
+
+      {/* Weekly Goal Tracker */}
+      {(() => {
+        const goal = data.settings.preferences.weeklyGoal || 3
+        const now = new Date()
+        const startOfWeek = new Date(now)
+        startOfWeek.setDate(now.getDate() - now.getDay() + 1)
+        const startStr = startOfWeek.toISOString().split('T')[0]
+        const thisWeekPublished = data.content.filter(c =>
+          c.status === 'published' && c.publishedAt && c.publishedAt >= startStr
+        ).length
+        const pct = Math.min((thisWeekPublished / goal) * 100, 100)
+        return (
+          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Target size={14} className="text-violet" />
+                <h2 className="text-sm font-semibold text-white/70">Weekly Goal</h2>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min={1}
+                  max={99}
+                  value={goal}
+                  onChange={e => {
+                    const v = parseInt(e.target.value)
+                    if (v > 0) {
+                      updateSettings({ preferences: { ...data.settings.preferences, weeklyGoal: v } })
+                    }
+                  }}
+                  className="w-12 bg-white/[0.05] border border-white/[0.08] rounded px-2 py-1 text-xs text-white text-center outline-none focus:border-violet/50"
+                />
+                <span className="text-xs text-white/30">/ {goal} published</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex-1 h-3 bg-white/[0.06] rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{ width: `${pct}%`, background: pct >= 100 ? '#22c55e' : '#8b5cf6' }}
+                />
+              </div>
+              <span className="text-sm font-mono font-bold text-white w-16 text-right">{thisWeekPublished}/{goal}</span>
+            </div>
+            {pct >= 100 && (
+              <p className="text-xs text-green-400 mt-2 flex items-center gap-1">Goal reached! Great work 🎉</p>
+            )}
+          </div>
+        )
+      })()}
 
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Left column */}
