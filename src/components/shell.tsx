@@ -5,8 +5,22 @@ import { ToastProvider } from '@/lib/toast-context'
 import { Sidebar, MobileNav } from '@/components/sidebar'
 import { TopBar } from '@/components/top-bar'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, createContext, useContext } from 'react'
 import { cn } from '@/lib/utils'
+
+interface ShellContextValue {
+  sidebarOpen: boolean
+  setSidebarOpen: (open: boolean) => void
+}
+
+export const ShellContext = createContext<ShellContextValue>({
+  sidebarOpen: false,
+  setSidebarOpen: () => {},
+})
+
+export function useShell() {
+  return useContext(ShellContext)
+}
 
 export function Shell({ children }: { children: React.ReactNode }) {
   return (
@@ -21,6 +35,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
 function ShellInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -44,15 +59,34 @@ function ShellInner({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar />
-      <div className={cn('transition-all duration-300 ml-[240px]')}>
-        <TopBar />
-        <main className="p-6 pb-20 md:pb-6">
-          {children}
-        </main>
+    <ShellContext.Provider value={{ sidebarOpen, setSidebarOpen }}>
+      <div className="min-h-screen bg-background">
+        {/* Mobile overlay backdrop */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 z-30 bg-black/60 md:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+        {/* Sidebar: hidden on mobile, fixed on desktop */}
+        <div className={cn(
+          'fixed top-0 left-0 h-screen z-40 transition-transform duration-300 md:hidden',
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        )}>
+          <Sidebar mobile onClose={() => setSidebarOpen(false)} />
+        </div>
+        {/* Desktop sidebar */}
+        <div className="hidden md:block">
+          <Sidebar />
+        </div>
+        <div className={cn('transition-all duration-300 ml-0 md:ml-[240px]')}>
+          <TopBar onMenuClick={() => setSidebarOpen(true)} />
+          <main className="p-6 pb-20 md:pb-6">
+            {children}
+          </main>
+        </div>
+        <MobileNav />
       </div>
-      <MobileNav />
-    </div>
+    </ShellContext.Provider>
   )
 }

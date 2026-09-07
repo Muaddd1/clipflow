@@ -16,7 +16,7 @@ import {
   Settings,
   ChevronLeft,
   Film,
-  Menu,
+  X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useData } from '@/lib/data-context'
@@ -50,10 +50,14 @@ const nav = [
 
 const SIDEBAR_COLLAPSED_KEY = 'clipflow-sidebar-collapsed'
 
-export function Sidebar() {
+interface SidebarProps {
+  mobile?: boolean
+  onClose?: () => void
+}
+
+export function Sidebar({ mobile, onClose }: SidebarProps) {
   const pathname = usePathname()
   const [collapsed, setCollapsed] = useState(false)
-  const { data } = useData()
 
   useEffect(() => {
     try {
@@ -70,14 +74,19 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        'fixed top-0 left-0 h-screen z-40 flex flex-col',
+        'h-screen flex flex-col',
         'bg-surface border-r border-white/[0.05]',
         'transition-all duration-300 ease-in-out',
         collapsed ? 'w-[68px]' : 'w-[240px]'
       )}
     >
-      {/* Logo */}
+      {/* Logo + close button for mobile */}
       <div className={cn('flex items-center gap-3 px-5 h-16 border-b border-white/[0.05]', collapsed && 'justify-center px-0')}>
+        {mobile && (
+          <button onClick={onClose} className="mr-1 text-white/40 hover:text-white flex-shrink-0">
+            <X size={18} />
+          </button>
+        )}
         <div className="w-8 h-8 rounded-lg bg-violet flex items-center justify-center flex-shrink-0">
           <Film size={16} className="text-white" />
         </div>
@@ -102,6 +111,7 @@ export function Sidebar() {
                   <Link
                     key={item.href}
                     href={item.href}
+                    onClick={mobile ? onClose : undefined}
                     className={cn(
                       'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150',
                       'hover:bg-white/[0.05]',
@@ -129,6 +139,7 @@ export function Sidebar() {
       <div className="px-3 pb-4 border-t border-white/[0.05] pt-4">
         <Link
           href="/settings"
+          onClick={mobile ? onClose : undefined}
           className={cn(
             'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150',
             'hover:bg-white/[0.05]',
@@ -144,10 +155,14 @@ export function Sidebar() {
         </Link>
       </div>
 
-      {/* Collapse toggle */}
+      {/* Collapse toggle — desktop only */}
       <button
         onClick={() => handleCollapse(!collapsed)}
-        className="absolute -right-3 top-20 w-6 h-6 rounded-full bg-surface-raised border border-white/10 flex items-center justify-center text-white/30 hover:text-white/60 transition-colors"
+        className={cn(
+          'absolute -right-3 top-20 w-6 h-6 rounded-full bg-surface-raised border border-white/10',
+          'items-center justify-center text-white/30 hover:text-white/60 transition-colors',
+          'hidden md:flex'
+        )}
       >
         <ChevronLeft size={12} className={cn('transition-transform', collapsed && 'rotate-180')} />
       </button>

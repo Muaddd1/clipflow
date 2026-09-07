@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Search, Bell, Plus, X, User, Settings, LogOut, ChevronRight } from 'lucide-react'
+import { Search, Bell, Plus, X, User, Settings, LogOut, ChevronRight, Menu } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -19,7 +19,11 @@ const quickActions = [
   { label: 'Schedule Content', href: '/calendar?new=true' },
 ]
 
-export function TopBar() {
+interface TopBarProps {
+  onMenuClick: () => void
+}
+
+export function TopBar({ onMenuClick }: TopBarProps) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [createOpen, setCreateOpen] = useState(false)
@@ -42,10 +46,18 @@ export function TopBar() {
   return (
     <>
       <header className="sticky top-0 z-30 h-16 flex items-center justify-between px-6 bg-surface/80 backdrop-blur-md border-b border-white/[0.05]">
+        {/* Mobile hamburger */}
+        <button
+          onClick={onMenuClick}
+          className="mr-3 md:hidden w-9 h-9 rounded-lg bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-white/40 hover:text-white/70 transition-colors"
+        >
+          <Menu size={15} />
+        </button>
+
         {/* Search */}
         <button
           onClick={() => setSearchOpen(true)}
-          className="flex items-center gap-2 text-sm text-white/30 hover:text-white/60 bg-white/[0.03] border border-white/[0.06] rounded-lg px-3 py-2 w-64 transition-colors"
+          className="flex items-center gap-2 text-sm text-white/30 hover:text-white/60 bg-white/[0.03] border border-white/[0.06] rounded-lg px-3 py-2 w-48 md:w-64 transition-colors"
         >
           <Search size={14} />
           <span className="flex-1 text-left text-xs">Search content...</span>
