@@ -67,9 +67,9 @@ function ShellInner({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Content area */}
-      <div className={cn('transition-all duration-300', 'ml-0 md:ml-[240px]')}>
+      <div className={cn('flex flex-col min-h-screen transition-all duration-300', 'ml-0 md:ml-[240px]')}>
         <TopBar onMenuClick={() => setSidebarOpen(true)} />
-        <main className="p-6 pb-24 md:pb-6">
+        <main className="flex-1 p-6 pb-24 md:pb-6">
           {children}
         </main>
       </div>
