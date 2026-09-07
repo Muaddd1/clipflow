@@ -166,7 +166,7 @@ export function ThumbnailGenerator({ open, onOpenChange, contentTitle, contentHo
               <Button variant="primary" size="sm" onClick={handleSaveKey}>
                 Save & Continue
               </Button>
-            </div}
+            </div>
             <p className="text-[10px] text-white/20">
               Your key is stored locally in your browser.
             </p>
