@@ -29,13 +29,12 @@ const toneOptions = [
   { value: 'Entertaining', label: 'Entertaining / Fun' },
 ]
 
-const voiceOptions = [
-  { value: 'Brian', label: 'Brian — Male (UK)' },
-  { value: 'Emma', label: 'Emma — Female (UK)' },
-  { value: 'Amy', label: 'Amy — Female (UK)' },
-  { value: 'Matthew', label: 'Matthew — Male (US)' },
-  { value: 'Joey', label: 'Joey — Male (US)' },
-  { value: 'Ivy', label: 'Ivy — Female (US, younger)' },
+// The free TTS endpoint only has one voice per accent (not distinct named
+// voices) — these three are the accents confirmed to actually sound different.
+const accentOptions = [
+  { value: 'en', label: 'Default (US/UK)' },
+  { value: 'en-AU', label: 'Australian' },
+  { value: 'en-IN', label: 'Indian' },
 ]
 
 const sceneCountOptions = [
@@ -60,7 +59,7 @@ export default function ShortsPage() {
   const [topic, setTopic] = useState('')
   const [platform, setPlatform] = useState<Platform>('youtube')
   const [tone, setTone] = useState('Casual')
-  const [voice, setVoice] = useState('Brian')
+  const [accent, setAccent] = useState('en')
   const [sceneCount, setSceneCount] = useState('6')
 
   const [titles, setTitles] = useState<string[]>([])
@@ -129,7 +128,7 @@ export default function ShortsPage() {
         const imageUrl = await generateShortsImage(scene.visual)
 
         setStage(`Generating narration ${i + 1}/${scenes.length}...`)
-        const audioUrl = await generateShortsNarration(scene.narration, voice)
+        const audioUrl = await generateShortsNarration(scene.narration, accent)
 
         assets.push({ narration: scene.narration, imageUrl, audioUrl })
         setProgress((i + 1) / scenes.length * 0.5)
@@ -212,7 +211,7 @@ export default function ShortsPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <Select label="Platform" value={platform} onValueChange={v => setPlatform(v as Platform)} options={platformOptions} id="shorts-platform" />
           <Select label="Tone" value={tone} onValueChange={setTone} options={toneOptions} id="shorts-tone" />
-          <Select label="Voice" value={voice} onValueChange={setVoice} options={voiceOptions} id="shorts-voice" />
+          <Select label="Accent" value={accent} onValueChange={setAccent} options={accentOptions} id="shorts-accent" />
           <Select label="Length" value={sceneCount} onValueChange={setSceneCount} options={sceneCountOptions} id="shorts-scenes" />
         </div>
         <Button

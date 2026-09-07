@@ -383,12 +383,12 @@ export async function generateShortsImage(prompt: string, width = 720, height = 
   return data.imageUrl as string
 }
 
-// Free, keyless narration via the StreamElements TTS endpoint — proxied server-side.
-export async function generateShortsNarration(text: string, voice = 'Brian'): Promise<string> {
+// Free, keyless narration via Google Translate's unofficial TTS endpoint — proxied server-side.
+export async function generateShortsNarration(text: string, accent = 'en'): Promise<string> {
   const response = await fetch('/api/shorts/tts', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, voice }),
+    body: JSON.stringify({ text, accent }),
   })
   if (!response.ok) {
     const data = await response.json().catch(() => ({}))
