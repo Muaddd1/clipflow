@@ -16,6 +16,7 @@ import {
   Settings,
   ChevronLeft,
   Film,
+  Clapperboard,
   X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -43,6 +44,7 @@ const nav = [
     label: 'Tools',
     items: [
       { href: '/repurpose', label: 'Repurpose', icon: Recycle },
+      { href: '/shorts', label: 'AI Shorts', icon: Clapperboard },
       { href: '/library', label: 'Library', icon: FolderOpen },
     ],
   },

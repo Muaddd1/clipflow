@@ -298,3 +298,102 @@ export async function repurposeContent(
   }
   return outputs.sort((a, b) => a.index - b.index)
 }
+
+export interface ShortsScene {
+  narration: string
+  visual: string
+}
+
+export interface ParsedShorts {
+  titles: string[]
+  scenes: ShortsScene[]
+  raw: string
+}
+
+export function parseShortsOutput(raw: string): ParsedShorts {
+  const titleMatch = raw.match(/TITLE_OPTIONS:\n([\s\S]*?)(?=\n---)/)
+  const titles = titleMatch
+    ? titleMatch[1].split('\n').map(l => l.replace(/^\d+\.\s*/, '').trim()).filter(Boolean)
+    : []
+
+  const scenes: ShortsScene[] = []
+  const blocks = raw.split(/---+/)
+  for (const block of blocks) {
+    const trimmed = block.trim()
+    if (!trimmed || !/NARRATION:/i.test(trimmed)) continue
+    const narrationMatch = trimmed.match(/NARRATION:\s*([\s\S]*?)(?=\nVISUAL:|$)/i)
+    const visualMatch = trimmed.match(/VISUAL:\s*([\s\S]*)/i)
+    const narration = narrationMatch ? narrationMatch[1].trim() : ''
+    const visual = visualMatch ? visualMatch[1].trim() : ''
+    if (narration) scenes.push({ narration, visual: visual || narration })
+  }
+
+  return { titles, scenes, raw }
+}
+
+export async function generateShortsScript(
+  topic: string,
+  platform: string,
+  tone: string,
+  sceneCount = 6,
+  model?: string
+): Promise<ParsedShorts> {
+  if (typeof window === 'undefined') throw new Error('Cannot call generateShortsScript on server')
+
+  const key = localStorage.getItem('clipflow-groq-key')
+  if (!key) throw new Error('No API key configured. Add your key in Settings > AI.')
+
+  const savedModel = localStorage.getItem('clipflow-ai-model') || 'openai/gpt-oss-20b'
+  const selectedModel = model || savedModel
+
+  const response = await fetch('/api/shorts', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ key, topic, platform, tone, sceneCount, model: selectedModel }),
+  })
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}))
+    throw new Error(data.error || `Request failed: ${response.status}`)
+  }
+
+  const data = await response.json()
+  return parseShortsOutput(data.raw)
+}
+
+export interface ShortsAsset {
+  narration: string
+  visual: string
+  imageUrl?: string
+  audioUrl?: string
+}
+
+// Free, keyless image generation via Pollinations.ai — proxied server-side.
+export async function generateShortsImage(prompt: string, width = 720, height = 1280): Promise<string> {
+  const response = await fetch('/api/shorts/image', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt, width, height }),
+  })
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}))
+    throw new Error(data.error || `Image generation failed: ${response.status}`)
+  }
+  const data = await response.json()
+  return data.imageUrl as string
+}
+
+// Free, keyless narration via the StreamElements TTS endpoint — proxied server-side.
+export async function generateShortsNarration(text: string, voice = 'Brian'): Promise<string> {
+  const response = await fetch('/api/shorts/tts', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text, voice }),
+  })
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}))
+    throw new Error(data.error || `Narration generation failed: ${response.status}`)
+  }
+  const data = await response.json()
+  return data.audioUrl as string
+}
