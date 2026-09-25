@@ -1,6 +1,10 @@
 {
   "name": "clipflow",
   "version": "0.1.0",
+
+  "description": "The operating system for your content business",
+
+  "homepage": "https://clipflow-sepia.vercel.app",
   "private": true,
   "scripts": {
     "dev": "next dev",
