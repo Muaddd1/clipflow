@@ -16,6 +16,9 @@
 
   "homepage": "https://clipflow-sepia.vercel.app",
   "private": true,
+  "engines": {
+    "node": ">=20.9.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
