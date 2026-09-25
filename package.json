@@ -2,6 +2,16 @@
   "name": "clipflow",
   "version": "0.1.0",
 
+  "repository": {
+
+  
+  "type": "git",
+
+  
+  "url": "git+https://github.com/Muaddd1/clipflow.git"
+
+  },
+
   "description": "The operating system for your content business",
 
   "homepage": "https://clipflow-sepia.vercel.app",
