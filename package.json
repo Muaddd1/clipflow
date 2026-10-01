@@ -1,19 +1,11 @@
 {
   "name": "clipflow",
   "version": "0.1.0",
-
   "repository": {
-
-  
-  "type": "git",
-
-  
-  "url": "git+https://github.com/Muaddd1/clipflow.git"
-
+    "type": "git",
+    "url": "git+https://github.com/Muaddd1/clipflow.git"
   },
-
   "description": "The operating system for your content business",
-
   "homepage": "https://clipflow-sepia.vercel.app",
   "private": true,
   "engines": {
@@ -54,5 +46,9 @@
   },
   "allowScripts": {
     "unrs-resolver@1.12.2": true
+  },
+  "author": "Mouad Sehli (https://muad-portfolio.vercel.app)",
+  "bugs": {
+    "url": "https://github.com/Muaddd1/clipflow/issues"
   }
 }
