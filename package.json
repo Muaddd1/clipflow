@@ -6,6 +6,16 @@
     "url": "git+https://github.com/Muaddd1/clipflow.git"
   },
   "description": "The operating system for your content business",
+  "keywords": [
+    "nextjs",
+    "react",
+    "typescript",
+    "tailwindcss",
+    "radix-ui",
+    "content-creators",
+    "saas",
+    "dashboard"
+  ],
   "homepage": "https://clipflow-sepia.vercel.app",
   "private": true,
   "engines": {
