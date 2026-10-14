@@ -236,7 +236,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
                 </div>
               )}
               {filteredContent.length === 0 && filteredIdeas.length === 0 && filteredScripts.length === 0 && (
-                <div className="p-6 text-center text-sm text-white/30">No results for "{query}"</div>
+                <div className="p-6 text-center text-sm text-white/30">No results for &quot;{query}&quot;</div>
               )}
             </div>
           ) : (

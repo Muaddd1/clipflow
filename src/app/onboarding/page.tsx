@@ -117,7 +117,7 @@ export default function OnboardingPage() {
               <h2 className="text-xl font-semibold text-white">Welcome, creator.</h2>
               <p className="text-white/40 text-sm leading-relaxed">
                 ClipFlow helps you manage your entire content business — from the first idea to the final analytics.
-                Let's set it up in 2 minutes.
+                Let&apos;s set it up in 2 minutes.
               </p>
               <Button variant="primary" className="w-full mt-4" onClick={() => setStep(2)}>
                 Get Started

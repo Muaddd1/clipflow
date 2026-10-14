@@ -264,7 +264,7 @@ export function AiIdeaGenerator({ open, onOpenChange, onSaveIdeas }: AiIdeaGener
                 <Zap size={12} className="text-violet" />
                 <p className="text-xs font-medium text-white/70">Tip</p>
               </div>
-              <p className="text-xs text-white/40">Be specific with your niche for better results. "Productivity for remote developers" works better than just "productivity".</p>
+              <p className="text-xs text-white/40">Be specific with your niche for better results. &quot;Productivity for remote developers&quot; works better than just &quot;productivity&quot;.</p>
             </div>
           </div>
         )}

@@ -207,7 +207,7 @@ export default function IdeasPage() {
                   <Trash2 size={14} />
                 </button>
               </div>
-              {idea.hook && <p className="text-xs text-violet font-medium mb-3 line-clamp-2">"{idea.hook}"</p>}
+              {idea.hook && <p className="text-xs text-violet font-medium mb-3 line-clamp-2">&quot;{idea.hook}&quot;</p>}
               <div className="flex items-center gap-2 mb-3 flex-wrap">
                 <Badge variant="platform" platform={idea.platform} />
                 <Badge variant="status" status={idea.status} />
@@ -250,7 +250,7 @@ export default function IdeasPage() {
         <Dialog open={!!detailId} onOpenChange={v => !v && setDetailId(null)}>
           <DialogBody className="p-6 space-y-4">
             <h2 className="text-lg font-semibold text-white">{detail.title}</h2>
-            {detail.hook && <p className="text-sm text-violet font-medium">"{detail.hook}"</p>}
+            {detail.hook && <p className="text-sm text-violet font-medium">&quot;{detail.hook}&quot;</p>}
             {detail.description && <p className="text-sm text-white/50">{detail.description}</p>}
             <div className="flex flex-wrap gap-2"><Badge variant="platform" platform={detail.platform} /><Badge variant="status" status={detail.status} /><Badge variant="priority" priority={detail.priority} /></div>
             {detail.notes && <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.04]"><p className="text-xs text-white/30 mb-1">Notes</p><p className="text-sm text-white/60">{detail.notes}</p></div>}

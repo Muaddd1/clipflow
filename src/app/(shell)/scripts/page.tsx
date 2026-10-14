@@ -213,7 +213,7 @@ export default function ScriptsPage() {
                   <Trash2 size={14} />
                 </button>
               </div>
-              {s.hook && <p className="text-xs text-violet/80 mb-3 line-clamp-2">"{s.hook}"</p>}
+              {s.hook && <p className="text-xs text-violet/80 mb-3 line-clamp-2">&quot;{s.hook}&quot;</p>}
               <div className="flex items-center gap-4 text-xs text-white/25">
                 <span>{s.wordCount} words</span>
                 <span>{Math.ceil(s.wordCount / 200)}m read</span>

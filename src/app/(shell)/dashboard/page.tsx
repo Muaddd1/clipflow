@@ -88,7 +88,7 @@ export default function DashboardPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Command Center</h1>
-          <p className="text-white/40 text-sm mt-0.5">Here's what's happening with your content.</p>
+          <p className="text-white/40 text-sm mt-0.5">Here&apos;s what&apos;s happening with your content.</p>
         </div>
         <Link href="/content?new=true">
           <Button variant="primary" size="sm">
@@ -164,7 +164,7 @@ export default function DashboardPage() {
         <div className="lg:col-span-2 space-y-6">
           {/* Today's Focus */}
           <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
-            <h2 className="text-sm font-semibold text-white/70 mb-4">Today's Focus</h2>
+            <h2 className="text-sm font-semibold text-white/70 mb-4">Today&apos;s Focus</h2>
             {todayTasks.length > 0 ? (
               <div className="space-y-2">
                 {todayTasks.map(task => (
