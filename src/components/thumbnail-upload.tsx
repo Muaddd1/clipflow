@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Image, Upload, X } from 'lucide-react'
+import { ImageIcon, Upload, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface ThumbnailUploadProps {
@@ -81,7 +81,7 @@ export function ThumbnailUpload({ value, onChange, className }: ThumbnailUploadP
         <div className="w-6 h-6 border-2 border-violet border-t-transparent rounded-full animate-spin" />
       ) : (
         <>
-          <Image size={20} className="text-white/20" />
+          <ImageIcon size={20} className="text-white/20" />
           <p className="text-xs text-white/30">Click or drag to upload</p>
           <p className="text-[10px] text-white/15">JPG, PNG, WebP</p>
         </>

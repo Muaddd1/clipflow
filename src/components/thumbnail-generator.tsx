@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Image, Sparkles, RefreshCw, Check, X, ChevronRight, Loader2, Wand2 } from 'lucide-react'
+import { ImageIcon, Sparkles, RefreshCw, Check, X, ChevronRight, Loader2, Wand2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -151,7 +151,7 @@ export function ThumbnailGenerator({ open, onOpenChange, contentTitle, contentHo
         {!hasApiKey ? (
           <div className="p-6 text-center space-y-4">
             <div className="w-12 h-12 rounded-full bg-violet/10 flex items-center justify-center mx-auto">
-              <Image size={20} className="text-violet" />
+              <ImageIcon size={20} className="text-violet" />
             </div>
             <div className="space-y-1">
               <p className="text-sm font-medium text-white">Replicate API Key Required</p>
