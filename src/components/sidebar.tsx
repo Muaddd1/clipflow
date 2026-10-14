@@ -20,7 +20,6 @@ import {
   X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { useData } from '@/lib/data-context'
 
 const nav = [
   {

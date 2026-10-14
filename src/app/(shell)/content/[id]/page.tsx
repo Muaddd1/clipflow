@@ -10,8 +10,15 @@ import { Select } from '@/components/ui/select'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { EmptyState } from '@/components/ui/empty-state'
 import {
-  ArrowLeft, ThumbsUp, MessageCircle, Share2, Eye,
-  Calendar, DollarSign, FileText, Edit, Trash2, ExternalLink, Image, Wand2,
+  ArrowLeft,
+  ThumbsUp,
+  MessageCircle,
+  Share2,
+  Eye,
+  FileText,
+  Edit,
+  Trash2,
+  Wand2,
 } from 'lucide-react'
 import { ThumbnailUpload } from '@/components/thumbnail-upload'
 import { ThumbnailGenerator } from '@/components/thumbnail-generator'

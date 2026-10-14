@@ -12,11 +12,11 @@ import { Select } from '@/components/ui/select'
 import { Dialog, DialogHeader, DialogTitle, DialogBody, DialogFooter } from '@/components/ui/dialog'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
-import { Lightbulb, Plus, Trash2, Filter, Zap, Sparkles, ArrowRight, PenTool } from 'lucide-react'
+import { Lightbulb, Plus, Trash2, Zap, Sparkles, ArrowRight, PenTool } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 import { AiIdeaGenerator } from '@/components/ai-idea-generator'
-import type { Idea, IdeaStatus, Platform, Priority } from '@/lib/types'
+import type { IdeaStatus, Platform, Priority } from '@/lib/types'
 import { toast } from 'sonner'
 
 const statusOptions = [

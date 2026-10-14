@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useData } from '@/lib/data-context'
 import { Badge } from '@/components/ui/badge'
-import { Eye, TrendingUp, Users, DollarSign, TrendingDown, BarChart2, ThumbsUp, Calendar } from 'lucide-react'
+import { Eye, TrendingUp, Users, DollarSign, BarChart2 } from 'lucide-react'
 import { formatNumber, formatDate } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 

@@ -1,15 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Sparkles, Copy, Check, RefreshCw, Save, X, ExternalLink, ChevronRight } from 'lucide-react'
+import { Sparkles, Copy, Check, RefreshCw, Save, X, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Select } from '@/components/ui/select'
 import { Dialog, DialogHeader, DialogTitle, DialogBody, DialogFooter } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
-import { cn } from '@/lib/utils'
-import { generateScript, parseScriptOutput, type ParsedScript } from '@/lib/ai'
+import { generateScript, type ParsedScript } from '@/lib/ai'
 import type { Platform } from '@/lib/types'
 
 interface AiScriptGeneratorProps {

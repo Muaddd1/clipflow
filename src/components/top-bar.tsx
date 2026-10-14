@@ -1,15 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { Search, Bell, Plus, X, User, Settings, LogOut, ChevronRight, Menu, FileVideo, Lightbulb, PenTool, Sun, Moon } from 'lucide-react'
+import { Search, Bell, Plus, X, Settings, LogOut, Menu, FileVideo, Lightbulb, PenTool, Sun, Moon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useData } from '@/lib/data-context'
 import { getInitials } from '@/lib/utils'
-import { Dialog, DialogHeader, DialogTitle, DialogBody } from '@/components/ui/dialog'
+import { Dialog, DialogBody } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 
 const quickActions = [
   { label: 'New Content', href: '/content?new=true' },

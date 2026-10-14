@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
-import { Settings, User, Sliders, Palette, Bell, Database, ChevronRight, Check, Sparkles, Eye, EyeOff } from 'lucide-react'
+import { User, Sliders, Palette, Bell, Database, Check, Sparkles, Eye, EyeOff } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
-import type { Platform, AppSettings } from '@/lib/types'
+import type { Platform } from '@/lib/types'
 
 const platformOptions = [
   { value: 'youtube', label: 'YouTube' },

@@ -9,7 +9,7 @@ import { Dialog, DialogHeader, DialogTitle, DialogBody, DialogFooter } from '@/c
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
-import { generateIdeas, parseIdeasOutput, type ParsedIdea } from '@/lib/ai'
+import { generateIdeas, type ParsedIdea } from '@/lib/ai'
 import type { Platform } from '@/lib/types'
 
 interface AiIdeaGeneratorProps {

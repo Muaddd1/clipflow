@@ -1,4 +1,4 @@
-import type { AppData, Content, Idea, Script, Sponsor, Channel, CalendarEvent, LibraryItem } from './types'
+import type { AppData } from './types'
 
 function uid() {
   return Math.random().toString(36).slice(2, 10)

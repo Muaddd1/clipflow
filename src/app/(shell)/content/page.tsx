@@ -12,13 +12,16 @@ import { Dialog, DialogHeader, DialogTitle, DialogBody, DialogFooter } from '@/c
 import { EmptyState } from '@/components/ui/empty-state'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import {
-  Plus, Search, Filter, FileVideo, ExternalLink,
-  Trash2, Edit, ThumbsUp, MessageCircle, Share2, Eye, Wand2,
+  Plus,
+  Search,
+  FileVideo,
+  ThumbsUp,
+  Eye,
+  Wand2,
 } from 'lucide-react'
 import { ThumbnailUpload } from '@/components/thumbnail-upload'
 import { ThumbnailGenerator } from '@/components/thumbnail-generator'
-import { formatNumber, formatDate, statusLabel, platformLabel } from '@/lib/utils'
-import { cn } from '@/lib/utils'
+import { formatNumber, formatDate } from '@/lib/utils'
 import type { Content, ContentStatus, Platform } from '@/lib/types'
 import { toast } from 'sonner'
 

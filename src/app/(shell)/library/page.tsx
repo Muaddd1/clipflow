@@ -7,11 +7,10 @@ import { Input } from '@/components/ui/input'
 import { Dialog, DialogHeader, DialogTitle, DialogBody, DialogFooter } from '@/components/ui/dialog'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
-import { FolderOpen, Upload, Trash2, FileVideo, FileImage, FileText, File, Eye, Edit, Search, Tag, SortAsc } from 'lucide-react'
+import { FolderOpen, Upload, Trash2, FileVideo, FileImage, FileText, File, Eye, Edit, Search } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
-import type { LibraryItem } from '@/lib/types'
 
 const typeIcon = (type: string) => {
   if (type.includes('video')) return <FileVideo size={16} className="text-red-400" />

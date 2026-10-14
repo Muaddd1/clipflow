@@ -5,13 +5,17 @@ import { useData } from '@/lib/data-context'
 import { MetricCard, AreaChart } from '@/components/ui/chart'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { EmptyState } from '@/components/ui/empty-state'
 import {
-  Eye, Heart, Users, FileVideo, Calendar, DollarSign,
-  Plus, Lightbulb, PenTool, Handshake, ArrowRight, Target,
+  FileVideo,
+  Plus,
+  Lightbulb,
+  PenTool,
+  Handshake,
+  ArrowRight,
+  Target,
 } from 'lucide-react'
 import Link from 'next/link'
-import { formatNumber, formatDate, formatRelativeDate } from '@/lib/utils'
+import { formatNumber, formatDate } from '@/lib/utils'
 import { platformColor } from '@/lib/utils'
 
 export default function DashboardPage() {
