@@ -10,8 +10,9 @@ import { Textarea } from '@/components/ui/textarea'
 import { useData } from '@/lib/data-context'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import type { Platform } from '@/lib/types'
 
-const platforms = [
+const platforms: { value: Platform; label: string }[] = [
   { value: 'youtube', label: 'YouTube' },
   { value: 'tiktok', label: 'TikTok' },
   { value: 'instagram', label: 'Instagram' },
@@ -36,12 +37,12 @@ export default function OnboardingPage() {
   const router = useRouter()
   const { data, addIdea, updateSettings, completeOnboarding } = useData()
   const [step, setStep] = useState(1)
-  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['youtube', 'tiktok'])
+  const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(['youtube', 'tiktok'])
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['Tech', 'AI'])
   const [weeklyGoal, setWeeklyGoal] = useState(3)
   const [firstIdea, setFirstIdea] = useState({ title: '', hook: '' })
 
-  const togglePlatform = (p: string) => {
+  const togglePlatform = (p: Platform) => {
     setSelectedPlatforms(prev =>
       prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]
     )
@@ -57,7 +58,7 @@ export default function OnboardingPage() {
     updateSettings({
       preferences: {
         ...data.settings.preferences,
-        platforms: selectedPlatforms as any,
+        platforms: selectedPlatforms,
         categories: selectedCategories,
         weeklyGoal,
       },
@@ -67,7 +68,7 @@ export default function OnboardingPage() {
         title: firstIdea.title,
         hook: firstIdea.hook,
         description: '',
-        platform: selectedPlatforms[0] as any || 'youtube',
+        platform: selectedPlatforms[0] || 'youtube',
         category: selectedCategories[0] || 'Tech',
         tags: selectedCategories,
         viralScore: 5,
