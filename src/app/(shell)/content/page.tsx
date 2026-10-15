@@ -22,7 +22,7 @@ import {
 import { ThumbnailUpload } from '@/components/thumbnail-upload'
 import { ThumbnailGenerator } from '@/components/thumbnail-generator'
 import { formatNumber, formatDate } from '@/lib/utils'
-import type { Content, ContentStatus, Platform } from '@/lib/types'
+import type { AppData, Content, ContentStatus, Platform } from '@/lib/types'
 import { toast } from 'sonner'
 
 const statusOptions = [
@@ -46,9 +46,9 @@ const platformOptions = [
 ]
 
 // Collect all unique tags from content
-function getAllContentTags(data: any): string[] {
+function getAllContentTags(data: AppData): string[] {
   const tags = new Set<string>()
-  data.content.forEach((c: any) => c.tags?.forEach((t: string) => tags.add(t)))
+  data.content.forEach(c => c.tags?.forEach((t: string) => tags.add(t)))
   return Array.from(tags).sort()
 }
 
