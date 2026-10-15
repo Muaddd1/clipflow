@@ -139,7 +139,7 @@ export default function LibraryPage() {
         </div>
         <select
           value={sortBy}
-          onChange={e => setSortBy(e.target.value as any)}
+          onChange={e => setSortBy(e.target.value as typeof sortBy)}
           className="bg-white/[0.03] border border-white/[0.06] rounded-lg px-3 py-2 text-xs text-white/50 outline-none"
         >
           <option value="newest">Newest first</option>

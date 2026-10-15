@@ -188,8 +188,8 @@ export default function IdeasPage() {
           />
         )}
         <div className="flex items-center gap-1 bg-white/[0.03] border border-white/[0.06] rounded-lg p-1">
-          {[['grid','Grid'],['list','List']].map(([v,label]) => (
-            <button key={v} onClick={() => setView(v as any)} className={cn('px-3 py-1.5 rounded-md text-xs font-medium transition-colors', view === v ? 'bg-white/[0.06] text-white' : 'text-white/30 hover:text-white/60')}>{label}</button>
+          {([['grid','Grid'],['list','List']] as const).map(([v,label]) => (
+            <button key={v} onClick={() => setView(v)} className={cn('px-3 py-1.5 rounded-md text-xs font-medium transition-colors', view === v ? 'bg-white/[0.06] text-white' : 'text-white/30 hover:text-white/60')}>{label}</button>
           ))}
         </div>
       </div>
