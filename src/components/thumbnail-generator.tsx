@@ -106,8 +106,8 @@ export function ThumbnailGenerator({ open, onOpenChange, contentTitle, contentHo
       } else {
         setImageUrl(result.imageUrl)
       }
-    } catch (err: any) {
-      setError(err.message || 'Generation failed')
+    } catch (err) {
+      setError((err instanceof Error && err.message) || 'Generation failed')
     } finally {
       setGenerating(false)
     }

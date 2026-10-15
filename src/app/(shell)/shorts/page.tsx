@@ -96,8 +96,8 @@ export default function ShortsPage() {
       setTitles(result.titles)
       setScenes(result.scenes.map(s => ({ narration: s.narration, visual: s.visual })))
       toast.success(`Generated a ${result.scenes.length}-scene shorts script`)
-    } catch (err: any) {
-      toast.error(err.message || 'Script generation failed')
+    } catch (err) {
+      toast.error((err instanceof Error && err.message) || 'Script generation failed')
     } finally {
       setGeneratingScript(false)
     }
@@ -142,9 +142,9 @@ export default function ShortsPage() {
       setVideoUrl(URL.createObjectURL(blob))
       setStage('')
       toast.success('Short generated!')
-    } catch (err: any) {
-      setError(err.message || 'Video generation failed')
-      toast.error(err.message || 'Video generation failed')
+    } catch (err) {
+      setError((err instanceof Error && err.message) || 'Video generation failed')
+      toast.error((err instanceof Error && err.message) || 'Video generation failed')
     } finally {
       setAssembling(false)
     }

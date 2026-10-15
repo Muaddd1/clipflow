@@ -70,9 +70,9 @@ export default function RepurposePage() {
 
       setOutputs(newOutputs)
       toast.success(`Generated ${newOutputs.length} AI repurposed outputs`)
-    } catch (err: any) {
-      setError(err.message || 'Generation failed')
-      toast.error(err.message || 'Generation failed')
+    } catch (err) {
+      setError((err instanceof Error && err.message) || 'Generation failed')
+      toast.error((err instanceof Error && err.message) || 'Generation failed')
     } finally {
       setGenerating(false)
     }
@@ -116,8 +116,8 @@ export default function RepurposePage() {
 
       setOutputs(prev => [...prev, ...newOutputs])
       toast.success(`Generated ${newOutputs.length} more outputs`)
-    } catch (err: any) {
-      toast.error(err.message || 'Generation failed')
+    } catch (err) {
+      toast.error((err instanceof Error && err.message) || 'Generation failed')
     } finally {
       setGenerating(false)
     }

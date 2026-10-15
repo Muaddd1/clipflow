@@ -91,8 +91,8 @@ export function AiScriptGenerator({ open, onOpenChange, initialTopic = '', initi
     try {
       const res = await generateScript(topic, platform, contentType, tone, duration)
       setResult(res)
-    } catch (err: any) {
-      setError(err.message || 'Generation failed. Check your API key in Settings.')
+    } catch (err) {
+      setError((err instanceof Error && err.message) || 'Generation failed. Check your API key in Settings.')
     } finally {
       setGenerating(false)
     }

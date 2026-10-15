@@ -95,8 +95,8 @@ export function AiIdeaGenerator({ open, onOpenChange, onSaveIdeas }: AiIdeaGener
       } else {
         setIdeas(result)
       }
-    } catch (err: any) {
-      setError(err.message || 'Generation failed. Check your API key in Settings.')
+    } catch (err) {
+      setError((err instanceof Error && err.message) || 'Generation failed. Check your API key in Settings.')
     } finally {
       setGenerating(false)
     }
