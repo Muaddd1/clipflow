@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Eye, TrendingUp, Users, DollarSign, BarChart2 } from 'lucide-react'
 import { formatNumber, formatDate } from '@/lib/utils'
 import { cn } from '@/lib/utils'
+import type { Platform } from '@/lib/types'
 
 const periods = [
   { value: '7', label: '7D' },
@@ -142,7 +143,7 @@ export default function AnalyticsPage() {
               const pct = data.content.length > 0 ? (count / data.content.length) * 100 : 0
               return (
                 <div key={platform} className="flex items-center gap-3">
-                  <Badge variant="platform" platform={platform as any} />
+                  <Badge variant="platform" platform={platform as Platform} />
                   <div className="flex-1 h-2 bg-white/[0.04] rounded-full overflow-hidden">
                     <div className="h-full rounded-full bg-violet" style={{ width: `${pct}%` }} />
                   </div>
