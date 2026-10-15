@@ -66,8 +66,8 @@ export async function POST(req: NextRequest) {
 
     const combined = Buffer.concat(buffers)
     return NextResponse.json({ audioUrl: `data:audio/mpeg;base64,${combined.toString('base64')}` })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Narration generation failed' }, { status: 500 })
+  } catch (err) {
+    return NextResponse.json({ error: (err instanceof Error && err.message) || 'Narration generation failed' }, { status: 500 })
   }
 }
 

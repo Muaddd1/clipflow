@@ -73,8 +73,8 @@ OUTPUT_3:
     const raw = data.choices?.[0]?.message?.content ?? ''
 
     return NextResponse.json({ raw })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Repurposing failed' }, { status: 500 })
+  } catch (err) {
+    return NextResponse.json({ error: (err instanceof Error && err.message) || 'Repurposing failed' }, { status: 500 })
   }
 }
 

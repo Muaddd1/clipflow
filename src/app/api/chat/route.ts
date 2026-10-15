@@ -82,8 +82,8 @@ ESTIMATED_READ_TIME: [X minutes]
     const raw = data.choices?.[0]?.message?.content ?? ''
 
     return NextResponse.json({ raw })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Generation failed' }, { status: 500 })
+  } catch (err) {
+    return NextResponse.json({ error: (err instanceof Error && err.message) || 'Generation failed' }, { status: 500 })
   }
 }
 

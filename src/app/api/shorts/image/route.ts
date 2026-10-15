@@ -32,8 +32,8 @@ export async function POST(req: NextRequest) {
     const base64 = Buffer.from(buf).toString('base64')
 
     return NextResponse.json({ imageUrl: `data:${contentType};base64,${base64}` })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Image generation failed' }, { status: 500 })
+  } catch (err) {
+    return NextResponse.json({ error: (err instanceof Error && err.message) || 'Image generation failed' }, { status: 500 })
   }
 }
 
