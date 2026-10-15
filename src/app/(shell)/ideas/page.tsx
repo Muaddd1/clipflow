@@ -16,7 +16,7 @@ import { Lightbulb, Plus, Trash2, Zap, Sparkles, ArrowRight, PenTool } from 'luc
 import { formatDate } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 import { AiIdeaGenerator } from '@/components/ai-idea-generator'
-import type { IdeaStatus, Platform, Priority } from '@/lib/types'
+import type { AppData, Idea, IdeaStatus, Platform, Priority } from '@/lib/types'
 import { toast } from 'sonner'
 
 const statusOptions = [
@@ -36,9 +36,9 @@ const priorityOptions = [
   { value: 'high', label: 'High' },
 ]
 
-function getAllIdeaTags(data: any): string[] {
+function getAllIdeaTags(data: AppData): string[] {
   const tags = new Set<string>()
-  data.ideas.forEach((i: any) => i.tags?.forEach((t: string) => tags.add(t)))
+  data.ideas.forEach(i => i.tags?.forEach((t: string) => tags.add(t)))
   return Array.from(tags).sort()
 }
 
@@ -95,12 +95,12 @@ export default function IdeasPage() {
     if (deleteId) { deleteIdea(deleteId); toast.success('Idea deleted'); setDeleteId(null) }
   }
 
-  const handleSaveAiIdeas = (ideas: any[]) => {
+  const handleSaveAiIdeas = (ideas: Parameters<typeof addIdea>[0][]) => {
     ideas.forEach(idea => addIdea(idea))
     setAiOpen(false)
   }
 
-  const handleIdeaToScript = (idea: any) => {
+  const handleIdeaToScript = (idea: Idea) => {
     addScript({
       title: idea.title,
       hook: idea.hook || '',
@@ -117,7 +117,7 @@ export default function IdeasPage() {
     router.push('/scripts')
   }
 
-  const handleDevelopIntoContent = (idea: any) => {
+  const handleDevelopIntoContent = (idea: Idea) => {
     // Update idea status to "developing"
     updateIdea(idea.id, { status: 'developing' })
     // Create content pre-filled from idea
