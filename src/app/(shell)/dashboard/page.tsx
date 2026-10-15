@@ -176,10 +176,10 @@ export default function DashboardPage() {
                     <div className="w-2 h-2 rounded-full bg-violet" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-white truncate">
-                        {'title' in task ? task.title : (task as any).title}
+                        {task.title}
                       </p>
                       <p className="text-xs text-white/30">
-                        {'platform' in task ? task.platform : (task as any).platform}
+                        {task.platform}
                       </p>
                     </div>
                     <Badge variant="status" status={'status' in task ? task.status : 'idea'} />
