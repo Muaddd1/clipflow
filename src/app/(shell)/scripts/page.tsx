@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useData } from '@/lib/data-context'
 import { Button } from '@/components/ui/button'
@@ -30,9 +30,13 @@ export default function ScriptsPage() {
   const script = editorId ? data.scripts.find(s => s.id === editorId) : null
 
   const searchParams = useSearchParams()
-  useEffect(() => {
-    if (searchParams.get('new') === 'true') setNewOpen(true)
-  }, [searchParams])
+  // Open the dialog when ?new=true appears (adjust state during render instead of in an effect)
+  const isNew = searchParams.get('new') === 'true'
+  const [prevIsNew, setPrevIsNew] = useState(false)
+  if (isNew !== prevIsNew) {
+    setPrevIsNew(isNew)
+    if (isNew) setNewOpen(true)
+  }
 
   const calcStats = (form: typeof newForm) => {
     const text = [form.hook, form.introduction, form.body, form.examples, form.cta].join(' ')
