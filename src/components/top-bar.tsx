@@ -109,7 +109,9 @@ export function TopBar({ onMenuClick }: TopBarProps) {
                 </div>
                 {(() => {
                   const today = new Date().toISOString().split('T')[0]
-                  const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0]
+                  const next = new Date()
+                  next.setDate(next.getDate() + 1)
+                  const tomorrow = next.toISOString().split('T')[0]
                   const recItems = data.content.filter(c =>
                     c.status === 'recording' || (c.scheduledAt && c.scheduledAt <= tomorrow && c.status !== 'published')
                   )
