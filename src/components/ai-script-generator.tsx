@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Sparkles, Copy, Check, RefreshCw, Save, X, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -78,10 +78,13 @@ export function AiScriptGenerator({ open, onOpenChange, initialTopic = '', initi
 
   const hasApiKey = typeof window !== 'undefined' && !!localStorage.getItem('clipflow-groq-key')
 
-  useEffect(() => {
+  // Sync from props when they change (adjust state during render, no effect)
+  const [prevInitial, setPrevInitial] = useState({ initialTopic, initialPlatform })
+  if (prevInitial.initialTopic !== initialTopic || prevInitial.initialPlatform !== initialPlatform) {
+    setPrevInitial({ initialTopic, initialPlatform })
     if (initialTopic) setTopic(initialTopic)
     if (initialPlatform) setPlatform(initialPlatform)
-  }, [initialTopic, initialPlatform])
+  }
 
   const handleGenerate = async () => {
     if (!topic.trim()) { toast.error('Please enter a topic'); return }
