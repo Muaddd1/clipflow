@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useData } from '@/lib/data-context'
@@ -38,9 +38,13 @@ export default function CalendarPage() {
   })
 
   const searchParams = useSearchParams()
-  useEffect(() => {
-    if (searchParams.get('new') === 'true') setDialogOpen(true)
-  }, [searchParams])
+  // Open the dialog when ?new=true appears (adjust state during render instead of in an effect)
+  const isNew = searchParams.get('new') === 'true'
+  const [prevIsNew, setPrevIsNew] = useState(false)
+  if (isNew !== prevIsNew) {
+    setPrevIsNew(isNew)
+    if (isNew) setDialogOpen(true)
+  }
 
   const goPrev = () => { if (month === 0) { setMonth(11); setYear(y => y - 1) } else setMonth(m => m - 1) }
   const goNext = () => { if (month === 11) { setMonth(0); setYear(y => y + 1) } else setMonth(m => m + 1) }
