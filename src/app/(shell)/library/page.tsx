@@ -34,14 +34,12 @@ export default function LibraryPage() {
   const [category, setCategory] = useState('All')
   const [search, setSearch] = useState('')
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'name' | 'size'>('newest')
-  const [dialogOpen, setDialogOpen] = useState(false)
   const [previewId, setPreviewId] = useState<string | null>(null)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [renameId, setRenameId] = useState<string | null>(null)
   const [newName, setNewName] = useState('')
   const [uploadLoading, setUploadLoading] = useState(false)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
-  const [tagInput, setTagInput] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
 
   const filtered = (() => {
