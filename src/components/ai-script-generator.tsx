@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Sparkles, Copy, Check, RefreshCw, Save, X, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -64,6 +65,7 @@ const durationOptions = [
 ]
 
 export function AiScriptGenerator({ open, onOpenChange, initialTopic = '', initialPlatform = 'youtube', onSave }: AiScriptGeneratorProps) {
+  const router = useRouter()
   const [topic, setTopic] = useState(initialTopic)
   const [platform, setPlatform] = useState<Platform>(initialPlatform)
   const [contentType, setContentType] = useState('Tutorial')
@@ -157,7 +159,7 @@ export function AiScriptGenerator({ open, onOpenChange, initialTopic = '', initi
               <p className="text-sm font-medium text-white">API Key Required</p>
               <p className="text-xs text-white/40 mt-1">Add your Groq API key in Settings to use AI generation.</p>
             </div>
-            <Button variant="primary" size="sm" onClick={() => { handleClose(); window.location.href = '/settings' }}>
+            <Button variant="primary" size="sm" onClick={() => { handleClose(); router.push('/settings') }}>
               Go to Settings <ChevronRight size={14} />
             </Button>
           </div>

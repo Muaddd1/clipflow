@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useData } from '@/lib/data-context'
 import { Button } from '@/components/ui/button'
@@ -29,6 +30,7 @@ type OutputCard = {
 }
 
 export default function RepurposePage() {
+  const router = useRouter()
   const { data } = useData()
   const [sourceId, setSourceId] = useState('')
   const [targetPlatform, setTargetPlatform] = useState<Platform>('tiktok')
@@ -186,7 +188,7 @@ export default function RepurposePage() {
           <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/5 border border-amber-500/10">
             <Sparkles size={14} className="text-amber-400" />
             <p className="text-xs text-amber-400/80">Add your Groq API key in Settings to enable AI repurposing.</p>
-            <Button variant="secondary" size="sm" onClick={() => window.location.href = '/settings'} className="ml-auto">Go to Settings</Button>
+            <Button variant="secondary" size="sm" onClick={() => router.push('/settings')} className="ml-auto">Go to Settings</Button>
           </div>
         )}
 

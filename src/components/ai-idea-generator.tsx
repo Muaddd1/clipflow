@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { Sparkles, Copy, Check, RefreshCw, Save, X, ChevronRight, TrendingUp, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -58,6 +59,7 @@ const countOptions = [
 ]
 
 export function AiIdeaGenerator({ open, onOpenChange, onSaveIdeas }: AiIdeaGeneratorProps) {
+  const router = useRouter()
   const [niche, setNiche] = useState('')
   const [platform, setPlatform] = useState<Platform>('youtube')
   const [category, setCategory] = useState('Tech')
@@ -160,7 +162,7 @@ export function AiIdeaGenerator({ open, onOpenChange, onSaveIdeas }: AiIdeaGener
               <p className="text-sm font-medium text-white">API Key Required</p>
               <p className="text-xs text-white/40 mt-1">Add your Groq API key in Settings to use AI generation.</p>
             </div>
-            <Button variant="primary" size="sm" onClick={() => { handleClose(); window.location.href = '/settings' }}>
+            <Button variant="primary" size="sm" onClick={() => { handleClose(); router.push('/settings') }}>
               Go to Settings <ChevronRight size={14} />
             </Button>
           </div>
