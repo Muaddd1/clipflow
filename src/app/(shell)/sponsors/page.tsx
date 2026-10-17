@@ -71,10 +71,6 @@ export default function SponsorsPage() {
     if (deleteId) { deleteSponsor(deleteId); toast.success('Sponsor deleted'); setDeleteId(null) }
   }
 
-  const handleMoveStage = (id: string, newStatus: SponsorStatus) => {
-    updateSponsor(id, { status: newStatus })
-  }
-
   return (
     <div className="space-y-6">
       {/* Header */}
