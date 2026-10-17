@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { useData } from '@/lib/data-context'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -120,8 +120,7 @@ function ContentRow({ content, onDelete, selected, onToggle }: { content: Conten
 }
 
 export default function ContentPage() {
-  const { data, addContent, deleteContent, deleteManyContent, updateManyContent, updateContent } = useData()
-  const router = useRouter()
+  const { data, addContent, deleteContent, deleteManyContent, updateContent } = useData()
   const searchParams = useSearchParams()
   const showNew = searchParams.get('new') === 'true'
 
@@ -138,7 +137,6 @@ export default function ContentPage() {
     thumbnail: '',
   })
   const [selectedIds, setSelectedIds] = useState<string[]>([])
-  const [bulkOpen, setBulkOpen] = useState(false)
   const [bulkStatus, setBulkStatus] = useState<ContentStatus>('idea')
   const [generateOpen, setGenerateOpen] = useState(false)
 
@@ -166,13 +164,11 @@ export default function ContentPage() {
     deleteManyContent(selectedIds)
     toast.success(`${selectedIds.length} items deleted`)
     setSelectedIds([])
-    setBulkOpen(false)
   }
   const handleBulkStatus = () => {
     selectedIds.forEach(id => updateContent(id, { status: bulkStatus }))
     toast.success(`${selectedIds.length} items updated`)
     setSelectedIds([])
-    setBulkOpen(false)
   }
 
   const handleAdd = () => {
