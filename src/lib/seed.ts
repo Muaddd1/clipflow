@@ -1,9 +1,5 @@
 import type { AppData } from './types'
 
-function uid() {
-  return Math.random().toString(36).slice(2, 10)
-}
-
 function daysAgo(n: number) {
   const d = new Date()
   d.setDate(d.getDate() - n)

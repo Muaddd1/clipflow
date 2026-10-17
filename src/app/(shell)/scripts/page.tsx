@@ -13,7 +13,6 @@ import { PenTool, Plus, Trash2, Save, Clock, ArrowLeft, Sparkles, History, Rotat
 import type { ScriptVersion } from '@/lib/types'
 import { formatDate, formatRelativeDate } from '@/lib/utils'
 import { toast } from 'sonner'
-import Link from 'next/link'
 import { AiScriptGenerator } from '@/components/ai-script-generator'
 
 export default function ScriptsPage() {
