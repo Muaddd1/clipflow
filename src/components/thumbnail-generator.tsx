@@ -27,14 +27,6 @@ const aspectOptions = [
   { value: '4:5',  label: 'Instagram Portrait (4:5)' },
 ]
 
-const platformEmojis: Record<Platform, string> = {
-  youtube: '▶️',
-  tiktok: '🎵',
-  instagram: '📷',
-  x: '🐦',
-  linkedin: '💼',
-}
-
 const stylePresets = [
   { value: 'vibrant', label: 'Vibrant & Bold', prompt: 'vibrant colors, bold text overlay, high contrast, cinematic lighting' },
   { value: 'minimal', label: 'Minimal Clean', prompt: 'minimalist design, clean typography, soft gradients, professional look' },
@@ -44,7 +36,7 @@ const stylePresets = [
   { value: 'custom', label: 'Custom Prompt', prompt: '' },
 ]
 
-export function ThumbnailGenerator({ open, onOpenChange, contentTitle, contentHook, platform, onAccept }: ThumbnailGeneratorProps) {
+export function ThumbnailGenerator({ open, onOpenChange, contentTitle, contentHook, onAccept }: ThumbnailGeneratorProps) {
   const [prompt, setPrompt] = useState('')
   const [style, setStyle] = useState('vibrant')
   const [aspect, setAspect] = useState('16:9')
@@ -134,8 +126,6 @@ export function ThumbnailGenerator({ open, onOpenChange, contentTitle, contentHo
     setError(null)
   }
 
-  const platformDefault = platform || 'youtube'
-  const platformAspect = platformDefault === 'tiktok' || platformDefault === 'instagram' ? '9:16' : '16:9'
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
