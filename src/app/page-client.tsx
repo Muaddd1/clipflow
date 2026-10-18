@@ -1,28 +1,21 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { redirect } from 'next/navigation'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 export function RootPageClient() {
-  const [ready, setReady] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
+    let onboarded = false
     try {
       const stored = localStorage.getItem('clipflow-data')
-      if (stored) {
-        const data = JSON.parse(stored)
-        if (data.settings?.onboardingComplete) {
-          redirect('/dashboard')
-        } else {
-          redirect('/onboarding')
-        }
-      } else {
-        redirect('/onboarding')
-      }
+      onboarded = !!(stored && JSON.parse(stored).settings?.onboardingComplete)
     } catch {
-      redirect('/onboarding')
+      // unreadable data: treat as a fresh install
     }
-  }, [])
+    router.replace(onboarded ? '/dashboard' : '/onboarding')
+  }, [router])
 
-  if (!ready) return null
+  return null
 }
