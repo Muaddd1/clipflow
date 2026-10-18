@@ -21,7 +21,7 @@ interface ChartProps {
   className?: string
 }
 
-export function AreaChart({ data, labels, color = '#7C3AED', height = 120, showArea = true, className }: ChartProps) {
+export function AreaChart({ data, color = '#7C3AED', height = 120, showArea = true, className }: ChartProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
