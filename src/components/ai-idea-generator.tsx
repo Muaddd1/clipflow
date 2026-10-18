@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Sparkles, Copy, Check, RefreshCw, Save, X, ChevronRight, TrendingUp, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -72,7 +72,10 @@ export function AiIdeaGenerator({ open, onOpenChange, onSaveIdeas }: AiIdeaGener
 
   const hasApiKey = typeof window !== 'undefined' && !!localStorage.getItem('clipflow-groq-key')
 
-  useEffect(() => {
+  // Reset the form each time the dialog opens (adjusting state during render, not in an effect)
+  const [wasOpen, setWasOpen] = useState(open)
+  if (open !== wasOpen) {
+    setWasOpen(open)
     if (open) {
       setNiche('')
       setPlatform('youtube')
@@ -82,7 +85,7 @@ export function AiIdeaGenerator({ open, onOpenChange, onSaveIdeas }: AiIdeaGener
       setSelectedIdeas(new Set())
       setError(null)
     }
-  }, [open])
+  }
 
   const handleGenerate = async () => {
     if (!niche.trim()) { toast.error('Please enter a niche or topic'); return }
