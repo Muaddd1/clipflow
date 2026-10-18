@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { ImageIcon, Sparkles, RefreshCw, Check, X, Wand2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -60,13 +60,17 @@ export function ThumbnailGenerator({ open, onOpenChange, contentTitle, contentHo
 
 
   // Auto-fill prompt from content title/hook
-  useEffect(() => {
-    if (open && contentTitle) {
-      const base = contentTitle
+  // (adjusting state during render when the inputs change, not in an effect)
+  const fillKey = open && contentTitle ? `${contentTitle}
+${contentHook ?? ''}` : null
+  const [lastFillKey, setLastFillKey] = useState<string | null>(null)
+  if (fillKey !== lastFillKey) {
+    setLastFillKey(fillKey)
+    if (fillKey !== null) {
       const hook = contentHook ? ` — ${contentHook}` : ''
-      setPrompt(`Thumbnail for YouTube video: "${base}${hook}", eye-catching, professional creator thumbnail`)
+      setPrompt(`Thumbnail for YouTube video: "${contentTitle}${hook}", eye-catching, professional creator thumbnail`)
     }
-  }, [open, contentTitle, contentHook])
+  }
 
   const buildPrompt = () => {
     if (style === 'custom') return prompt
