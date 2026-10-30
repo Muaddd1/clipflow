@@ -42,13 +42,13 @@ export function ThumbnailUpload({ value, onChange, className }: ThumbnailUploadP
     return (
       <div className={cn('relative group', className)}>
         <img src={value} alt="Thumbnail" className="w-full h-32 object-cover rounded-lg" />
-        <button
+        <button aria-label="Remove thumbnail"
           onClick={() => onChange(null)}
           className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"
         >
           <X size={12} className="text-white" />
         </button>
-        <button
+        <button aria-label="Upload thumbnail"
           onClick={() => inputRef.current?.click()}
           className="absolute inset-0 rounded-lg bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
         >

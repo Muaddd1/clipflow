@@ -119,7 +119,7 @@ export default function ContentDetailPage() {
               </div>
             </button>
           ) : (
-            <button
+            <button aria-label="Generate thumbnail"
               onClick={() => setGenerateOpen(true)}
               className="w-16 h-10 rounded-lg bg-white/[0.04] border border-dashed border-white/[0.1] flex items-center justify-center hover:bg-white/[0.07] transition-colors"
             >
