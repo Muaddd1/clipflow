@@ -84,7 +84,7 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
       {/* Logo + close button for mobile */}
       <div className={cn('flex items-center gap-3 px-5 h-16 border-b border-white/[0.05]', collapsed && 'justify-center px-0')}>
         {mobile && (
-          <button onClick={onClose} className="mr-1 text-white/40 hover:text-white flex-shrink-0">
+          <button aria-label="Close menu" onClick={onClose} className="mr-1 text-white/40 hover:text-white flex-shrink-0">
             <X size={18} />
           </button>
         )}
@@ -157,7 +157,7 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
       </div>
 
       {/* Collapse toggle — desktop only */}
-      <button
+      <button aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         onClick={() => handleCollapse(!collapsed)}
         className={cn(
           'absolute -right-3 top-20 w-6 h-6 rounded-full bg-surface-raised border border-white/10',

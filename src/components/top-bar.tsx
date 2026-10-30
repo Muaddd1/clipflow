@@ -62,7 +62,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
         'ml-0 md:ml-[240px]'
       )}>
         {/* Mobile hamburger */}
-        <button
+        <button aria-label="Open menu"
           onClick={onMenuClick}
           className="mr-3 md:hidden w-9 h-9 rounded-lg bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-white/40 hover:text-white/70 transition-colors"
         >
@@ -105,7 +105,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
               <div className="absolute right-0 top-12 w-72 rounded-xl border border-white/[0.08] bg-surface-raised shadow-xl z-50 overflow-hidden">
                 <div className="p-3 border-b border-white/[0.06] flex items-center justify-between">
                   <p className="text-sm font-semibold text-white">Notifications</p>
-                  <button onClick={() => setNotifOpen(false)} className="text-white/20 hover:text-white/40"><X size={14} /></button>
+                  <button aria-label="Close notifications" onClick={() => setNotifOpen(false)} className="text-white/20 hover:text-white/40"><X size={14} /></button>
                 </div>
                 {(() => {
                   const today = new Date().toISOString().split('T')[0]
@@ -193,7 +193,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
               placeholder="Search content, ideas, scripts..."
               className="flex-1 bg-transparent text-sm text-white placeholder:text-white/20 outline-none"
             />
-            <button type="button" onClick={() => setSearchOpen(false)} className="text-white/20 hover:text-white/40">
+            <button aria-label="Close search" type="button" onClick={() => setSearchOpen(false)} className="text-white/20 hover:text-white/40">
               <X size={14} />
             </button>
           </form>
