@@ -185,10 +185,10 @@ export default function LibraryPage() {
                   <div className="text-white/20">{typeIcon(item.type)}</div>
                 )}
                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                  <button onClick={e => { e.stopPropagation(); setPreviewId(item.id) }} className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white/70 hover:text-white">
+                  <button aria-label="Preview" onClick={e => { e.stopPropagation(); setPreviewId(item.id) }} className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white/70 hover:text-white">
                     <Eye size={14} />
                   </button>
-                  <button onClick={e => { e.stopPropagation(); setDeleteId(item.id) }} className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white/70 hover:text-red-400">
+                  <button aria-label="Delete" onClick={e => { e.stopPropagation(); setDeleteId(item.id) }} className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white/70 hover:text-red-400">
                     <Trash2 size={14} />
                   </button>
                 </div>

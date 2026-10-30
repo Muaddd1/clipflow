@@ -124,7 +124,7 @@ export default function SponsorsPage() {
                     >
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <p className="text-sm font-semibold text-white/90 group-hover:text-white truncate flex-1">{sp.company}</p>
-                        <button
+                        <button aria-label="Delete sponsor"
                           onClick={e => { e.stopPropagation(); setDeleteId(sp.id) }}
                           className="opacity-0 group-hover:opacity-100 text-white/20 hover:text-red-400 transition-all shrink-0"
                         >

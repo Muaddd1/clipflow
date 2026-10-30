@@ -105,7 +105,7 @@ export default function ContentDetailPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-4">
-          <button
+          <button aria-label="Back"
             onClick={() => router.push('/content')}
             className="w-9 h-9 rounded-lg bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-white/40 hover:text-white/70 transition-colors"
           >
@@ -145,7 +145,7 @@ export default function ContentDetailPage() {
           <Button variant="secondary" size="sm" onClick={() => { duplicateContent(content.id); toast.success('Content duplicated') }}>
             Copy
           </Button>
-          <Button variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
+          <Button aria-label="Delete content" variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
             <Trash2 size={14} />
           </Button>
         </div>

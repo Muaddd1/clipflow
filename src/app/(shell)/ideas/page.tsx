@@ -203,7 +203,7 @@ export default function IdeasPage() {
             <div key={idea.id} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 hover:bg-white/[0.04] transition-colors cursor-pointer group" onClick={() => setDetailId(idea.id)}>
               <div className="flex items-start justify-between gap-2 mb-3">
                 <h3 className="text-sm font-semibold text-white/90 group-hover:text-white line-clamp-2">{idea.title}</h3>
-                <button onClick={e => { e.stopPropagation(); setDeleteId(idea.id) }} className="opacity-0 group-hover:opacity-100 text-white/20 hover:text-red-400 transition-all">
+                <button aria-label="Delete idea" onClick={e => { e.stopPropagation(); setDeleteId(idea.id) }} className="opacity-0 group-hover:opacity-100 text-white/20 hover:text-red-400 transition-all">
                   <Trash2 size={14} />
                 </button>
               </div>
@@ -262,7 +262,7 @@ export default function IdeasPage() {
                 <ArrowRight size={14} />Develop
               </Button>
               <span className="text-xs text-white/20">Created {formatDate(detail.createdAt)}</span>
-              <Button variant="destructive" size="sm" onClick={() => { setDeleteId(detail.id); setDetailId(null) }}><Trash2 size={14} /></Button>
+              <Button aria-label="Delete idea" variant="destructive" size="sm" onClick={() => { setDeleteId(detail.id); setDetailId(null) }}><Trash2 size={14} /></Button>
             </div>
           </DialogBody>
         </Dialog>

@@ -91,7 +91,7 @@ export default function ScriptsPage() {
     return (
       <div className="space-y-6 max-w-4xl">
         <div className="flex items-center gap-4">
-          <button onClick={() => setEditorId(null)} className="w-9 h-9 rounded-lg bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-white/40 hover:text-white/70 transition-colors">
+          <button aria-label="Back" onClick={() => setEditorId(null)} className="w-9 h-9 rounded-lg bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-white/40 hover:text-white/70 transition-colors">
             <ArrowLeft size={15} />
           </button>
           <div className="flex-1">
@@ -212,7 +212,7 @@ export default function ScriptsPage() {
             <div key={s.id} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 hover:bg-white/[0.04] transition-colors group cursor-pointer" onClick={() => setEditorId(s.id)}>
               <div className="flex items-start justify-between gap-2 mb-3">
                 <h3 className="text-sm font-semibold text-white/90 group-hover:text-white">{s.title}</h3>
-                <button onClick={e => { e.stopPropagation(); setDeleteId(s.id) }} className="opacity-0 group-hover:opacity-100 text-white/20 hover:text-red-400 transition-all">
+                <button aria-label="Delete script" onClick={e => { e.stopPropagation(); setDeleteId(s.id) }} className="opacity-0 group-hover:opacity-100 text-white/20 hover:text-red-400 transition-all">
                   <Trash2 size={14} />
                 </button>
               </div>

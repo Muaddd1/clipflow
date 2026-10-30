@@ -82,11 +82,11 @@ export default function CalendarPage() {
       <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] overflow-hidden">
         {/* Month nav */}
         <div className="flex items-center justify-between p-4 border-b border-white/[0.04]">
-          <button onClick={goPrev} className="w-8 h-8 rounded-lg bg-white/[0.04] flex items-center justify-center text-white/40 hover:text-white/70 transition-colors">
+          <button aria-label="Previous month" onClick={goPrev} className="w-8 h-8 rounded-lg bg-white/[0.04] flex items-center justify-center text-white/40 hover:text-white/70 transition-colors">
             <ChevronLeft size={15} />
           </button>
           <h2 className="text-base font-semibold text-white">{MONTHS[month]} {year}</h2>
-          <button onClick={goNext} className="w-8 h-8 rounded-lg bg-white/[0.04] flex items-center justify-center text-white/40 hover:text-white/70 transition-colors">
+          <button aria-label="Next month" onClick={goNext} className="w-8 h-8 rounded-lg bg-white/[0.04] flex items-center justify-center text-white/40 hover:text-white/70 transition-colors">
             <ChevronRight size={15} />
           </button>
         </div>
