@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import { TextareaHTMLAttributes, forwardRef } from 'react'
+import { TextareaHTMLAttributes, forwardRef, useId } from 'react'
 
 interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string
@@ -7,7 +7,9 @@ interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 }
 
 const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, label, error, id, ...props }, ref) => {
+  ({ className, label, error, id: idProp, ...props }, ref) => {
+    const autoId = useId()
+    const id = idProp ?? autoId // label is linked even when callers pass no id
     return (
       <div className="flex flex-col gap-1.5">
         {label && (
