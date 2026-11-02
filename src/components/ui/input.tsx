@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import { InputHTMLAttributes, forwardRef } from 'react'
+import { InputHTMLAttributes, forwardRef, useId } from 'react'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string
@@ -7,7 +7,9 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, id, ...props }, ref) => {
+  ({ className, label, error, id: idProp, ...props }, ref) => {
+    const autoId = useId()
+    const id = idProp ?? autoId // label is linked even when callers pass no id
     return (
       <div className="flex flex-col gap-1.5">
         {label && (
