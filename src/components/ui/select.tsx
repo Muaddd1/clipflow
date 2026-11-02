@@ -1,7 +1,7 @@
 import * as RadixSelect from '@radix-ui/react-select'
 import { ChevronDown, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { forwardRef } from 'react'
+import { forwardRef, useId } from 'react'
 
 interface SelectProps {
   label?: string
@@ -15,7 +15,9 @@ interface SelectProps {
 }
 
 export const Select = forwardRef<HTMLButtonElement, SelectProps>(
-  ({ label, error, value, onValueChange, options, placeholder = 'Select...', className, id }, ref) => {
+  ({ label, error, value, onValueChange, options, placeholder = 'Select...', className, id: idProp }, ref) => {
+    const autoId = useId()
+    const id = idProp ?? autoId // label is linked even when callers pass no id
     return (
       <div className="flex flex-col gap-1.5">
         {label && (
