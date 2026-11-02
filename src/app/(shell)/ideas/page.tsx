@@ -173,7 +173,7 @@ export default function IdeasPage() {
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2 bg-white/[0.03] border border-white/[0.06] rounded-lg px-3 py-2 flex-1 max-w-sm">
           <Lightbulb size={14} className="text-white/30" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search ideas..." className="flex-1 bg-transparent text-sm text-white placeholder:text-white/20 outline-none" />
+          <input aria-label="Search ideas" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search ideas..." className="flex-1 bg-transparent text-sm text-white placeholder:text-white/20 outline-none" />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter} options={statusOptions} placeholder="Status" className="w-40" id="status-filter" />
         <Select value={priorityFilter} onValueChange={setPriorityFilter} options={[{value:'',label:'All Priority'},{value:'high',label:'High'},{value:'medium',label:'Medium'},{value:'low',label:'Low'}]} placeholder="Priority" className="w-32" id="priority-filter" />

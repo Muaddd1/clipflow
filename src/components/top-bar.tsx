@@ -186,7 +186,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
         <DialogBody className="p-0 gap-0">
           <form onSubmit={handleSearch} className="flex items-center gap-3 p-4 border-b border-white/[0.06]">
             <Search size={16} className="text-white/30" />
-            <input
+            <input aria-label="Search"
               autoFocus
               value={query}
               onChange={e => setQuery(e.target.value)}

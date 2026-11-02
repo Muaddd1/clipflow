@@ -214,7 +214,7 @@ export default function ContentPage() {
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2 bg-white/[0.03] border border-white/[0.06] rounded-lg px-3 py-2 flex-1 max-w-sm">
           <Search size={14} className="text-white/30" />
-          <input
+          <input aria-label="Search content"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search content..."
@@ -257,7 +257,7 @@ export default function ContentPage() {
             <span className="text-sm text-violet font-medium">{selectedIds.length} selected</span>
             <button onClick={() => setSelectedIds([])} className="text-white/30 hover:text-white text-xs">Clear</button>
             <div className="flex items-center gap-2 ml-auto">
-              <select
+              <select aria-label="Bulk status"
                 value={bulkStatus}
                 onChange={e => setBulkStatus(e.target.value as ContentStatus)}
                 className="bg-white/[0.06] border border-white/[0.08] rounded px-2 py-1 text-xs text-white outline-none"

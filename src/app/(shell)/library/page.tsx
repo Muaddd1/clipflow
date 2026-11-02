@@ -133,9 +133,9 @@ export default function LibraryPage() {
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2 bg-white/[0.03] border border-white/[0.06] rounded-lg px-3 py-2 flex-1 max-w-sm">
           <Search size={13} className="text-white/30 shrink-0" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search files by name..." className="flex-1 bg-transparent text-sm text-white placeholder:text-white/20 outline-none" />
+          <input aria-label="Search files" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search files by name..." className="flex-1 bg-transparent text-sm text-white placeholder:text-white/20 outline-none" />
         </div>
-        <select
+        <select aria-label="Sort files"
           value={sortBy}
           onChange={e => setSortBy(e.target.value as typeof sortBy)}
           className="bg-white/[0.03] border border-white/[0.06] rounded-lg px-3 py-2 text-xs text-white/50 outline-none"
