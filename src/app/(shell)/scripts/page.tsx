@@ -95,7 +95,7 @@ export default function ScriptsPage() {
             <ArrowLeft size={15} />
           </button>
           <div className="flex-1">
-            <input
+            <input aria-label="Script title"
               value={script.title}
               onChange={e => updateScript(script.id, { ...script, title: e.target.value })}
               className="text-xl font-bold text-white bg-transparent outline-none w-full"
@@ -126,7 +126,7 @@ export default function ScriptsPage() {
           ].map(field => (
             <div key={field.key} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
               <label className="text-xs font-mono text-white/30 uppercase tracking-wider mb-2 block">{field.label}</label>
-              <textarea
+              <textarea aria-label={field.label}
                 value={field.value}
                 onChange={e => updateScript(script.id, { ...script, [field.key]: e.target.value })}
                 placeholder={field.placeholder}
@@ -138,7 +138,7 @@ export default function ScriptsPage() {
 
           <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
             <label className="text-xs font-mono text-white/30 uppercase tracking-wider mb-2 block">Notes</label>
-            <textarea
+            <textarea aria-label="Notes"
               value={script.notes}
               onChange={e => updateScript(script.id, { ...script, notes: e.target.value })}
               placeholder="Personal notes, reminders, pacing notes..."
