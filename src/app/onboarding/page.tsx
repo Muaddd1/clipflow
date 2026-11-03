@@ -218,12 +218,12 @@ export default function OnboardingPage() {
             <div className="space-y-4">
               <h2 className="text-lg font-semibold text-white">One last thing.</h2>
               <p className="text-white/40 text-sm">Have an idea brewing? Capture it now and start with momentum.</p>
-              <Input
+              <Input aria-label="First content idea"
                 placeholder="Your content idea..."
                 value={firstIdea.title}
                 onChange={e => setFirstIdea(prev => ({ ...prev, title: e.target.value }))}
               />
-              <Textarea
+              <Textarea aria-label="Hook (optional)"
                 placeholder="The hook — what makes people stop scrolling? (optional)"
                 value={firstIdea.hook}
                 onChange={e => setFirstIdea(prev => ({ ...prev, hook: e.target.value }))}
