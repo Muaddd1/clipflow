@@ -347,7 +347,7 @@ export default function ContentPage() {
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-mono text-white/40 uppercase tracking-wider">Description</label>
-            <textarea
+            <textarea aria-label="Description"
               value={newForm.description}
               onChange={e => setNewForm(p => ({ ...p, description: e.target.value }))}
               placeholder="Brief description..."

@@ -283,7 +283,7 @@ export default function IdeasPage() {
             <Select label="Status" value={form.status} onValueChange={v => setForm(p => ({ ...p, status: v as IdeaStatus }))} options={statusOptions.slice(1)} id="idea-status" />
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-mono text-white/40 uppercase tracking-wider">Viral Score</label>
-              <input type="range" min={1} max={10} value={form.viralScore} onChange={e => setForm(p => ({ ...p, viralScore: +e.target.value }))} className="w-full accent-violet" />
+              <input aria-label="Viral score" type="range" min={1} max={10} value={form.viralScore} onChange={e => setForm(p => ({ ...p, viralScore: +e.target.value }))} className="w-full accent-violet" />
               <div className="flex justify-between"><span className="text-xs text-white/20">1</span><span className="text-xs font-mono text-violet">{form.viralScore}/10</span><span className="text-xs text-white/20">10</span></div>
             </div>
           </div>

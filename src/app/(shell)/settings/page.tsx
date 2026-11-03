@@ -290,7 +290,7 @@ export default function SettingsPage() {
                 <Input label="Avatar URL" value={profile.avatar} onChange={e => setProfile(p => ({ ...p, avatar: e.target.value }))} placeholder="https://..." />
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-mono text-white/40 uppercase tracking-wider">Bio</label>
-                  <textarea value={profile.bio} onChange={e => setProfile(p => ({ ...p, bio: e.target.value }))} rows={3} placeholder="Tell the world who you are..."
+                  <textarea aria-label="Bio" value={profile.bio} onChange={e => setProfile(p => ({ ...p, bio: e.target.value }))} rows={3} placeholder="Tell the world who you are..."
                     className="w-full bg-white/[0.03] border border-white/[0.07] rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-violet/50 resize-none" />
                 </div>
               </div>
