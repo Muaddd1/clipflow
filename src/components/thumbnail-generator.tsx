@@ -151,7 +151,7 @@ ${contentHook ?? ''}` : null
               <p className="text-xs text-white/40">Add your key to generate AI thumbnails.</p>
             </div>
             <div className="flex flex-col gap-2 max-w-xs mx-auto">
-              <Input
+              <Input aria-label="Replicate API key"
                 placeholder="Enter Replicate API key (r8_...)"
                 value={apiKeyInput}
                 onChange={e => setApiKeyInput(e.target.value)}

@@ -309,7 +309,7 @@ export function AiScriptGenerator({ open, onOpenChange, initialTopic = '', initi
             <div className="flex-1" />
             {showSaveForm ? (
               <div className="flex items-center gap-2">
-                <input
+                <input aria-label="Script title"
                   value={saveTitle}
                   onChange={e => setSaveTitle(e.target.value)}
                   placeholder="Script title..."
