@@ -241,7 +241,7 @@ export default function RepurposePage() {
                         {copied === card.id ? <><Check size={10} className="inline mr-1" />Copied</> : <><Copy size={10} className="inline mr-1" />Copy</>}
                       </button>
                     </div>
-                    <textarea
+                    <textarea aria-label={`${platform} ${card.label}`}
                       value={card.content}
                       onChange={e => handleUpdate(card.id, e.target.value)}
                       rows={4}
