@@ -188,7 +188,7 @@ export default function SponsorsPage() {
           <Input label="Deadline" type="date" value={detailDraft.deadline || ''} onChange={e => setDetailDraft(p => ({ ...p, deadline: e.target.value }))} />
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-mono text-white/40 uppercase tracking-wider">Notes</label>
-            <textarea value={detailDraft.notes || ''} onChange={e => setDetailDraft(p => ({ ...p, notes: e.target.value }))} rows={2}
+            <textarea aria-label="Deal notes" value={detailDraft.notes || ''} onChange={e => setDetailDraft(p => ({ ...p, notes: e.target.value }))} rows={2}
               placeholder="Deal notes, terms, deliverables..."
               className="w-full bg-white/[0.03] border border-white/[0.07] rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-violet/50 resize-none" />
           </div>
@@ -217,7 +217,7 @@ export default function SponsorsPage() {
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-mono text-white/40 uppercase tracking-wider">Notes</label>
-            <textarea value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} rows={2}
+            <textarea aria-label="Deal notes" value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} rows={2}
               placeholder="Deal notes..."
               className="w-full bg-white/[0.03] border border-white/[0.07] rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-violet/50 resize-none" />
           </div>
