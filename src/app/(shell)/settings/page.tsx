@@ -334,7 +334,7 @@ export default function SettingsPage() {
               <div>
                 <label className="text-sm font-medium text-white/70 mb-3 block">Weekly Publishing Goal</label>
                 <div className="flex items-center gap-4">
-                  <input type="number" min={1} max={50} value={prefs.weeklyGoal} onChange={e => setPrefs(p => ({ ...p, weeklyGoal: +e.target.value }))}
+                  <input aria-label="Weekly publishing goal" type="number" min={1} max={50} value={prefs.weeklyGoal} onChange={e => setPrefs(p => ({ ...p, weeklyGoal: +e.target.value }))}
                     className="w-20 bg-white/[0.03] border border-white/[0.07] rounded-lg px-4 py-2.5 text-sm text-white text-center focus:outline-none focus:border-violet/50" />
                   <span className="text-sm text-white/30">pieces per week</span>
                 </div>
