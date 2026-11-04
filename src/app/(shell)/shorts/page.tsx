@@ -256,6 +256,7 @@ export default function ShortsPage() {
                   </button>
                 </div>
                 <textarea
+                  aria-label={`Scene ${i + 1} narration`}
                   value={scene.narration}
                   onChange={e => updateScene(i, 'narration', e.target.value)}
                   rows={2}
@@ -263,6 +264,7 @@ export default function ShortsPage() {
                   className="w-full bg-transparent text-sm text-white/80 placeholder:text-white/15 outline-none resize-none leading-relaxed"
                 />
                 <textarea
+                  aria-label={`Scene ${i + 1} visual description`}
                   value={scene.visual}
                   onChange={e => updateScene(i, 'visual', e.target.value)}
                   rows={1}
