@@ -389,6 +389,7 @@ export default function SettingsPage() {
                   <div className="flex items-center gap-2">
                     <div className="relative flex-1">
                       <input
+                        aria-label="Groq API key"
                         type={showApiKey ? 'text' : 'password'}
                         value={aiApiKey}
                         onChange={e => setAiApiKey(e.target.value)}
@@ -411,6 +412,7 @@ export default function SettingsPage() {
                   <div className="flex items-center gap-2">
                     <div className="relative flex-1">
                       <input
+                        aria-label="Replicate API key"
                         type={showReplicateKey ? 'text' : 'password'}
                         value={replicateKey}
                         onChange={e => setReplicateKey(e.target.value)}
